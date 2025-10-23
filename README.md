@@ -1,0 +1,2 @@
+# AndroidChatApp
+AndroidでWebSocket通信を学ぶためのアプリ
