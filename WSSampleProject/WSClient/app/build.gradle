@@ -1,0 +1,84 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+}
+
+android {
+    namespace 'com.example.wsclient'
+    compileSdk {
+        version = release(36)
+    }
+
+    defaultConfig {
+        applicationId "com.example.wsclient"
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+
+        // Desugaring を有効化
+        coreLibraryDesugaringEnabled true
+    }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+    buildFeatures {
+        compose true
+    }
+}
+
+dependencies {
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.activity.compose
+    implementation platform(libs.androidx.compose.bom)
+    implementation libs.androidx.compose.ui
+    implementation libs.androidx.compose.ui.graphics
+    implementation libs.androidx.compose.ui.tooling.preview
+    implementation libs.androidx.compose.material3
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    androidTestImplementation platform(libs.androidx.compose.bom)
+    androidTestImplementation libs.androidx.compose.ui.test.junit4
+    debugImplementation libs.androidx.compose.ui.tooling
+    debugImplementation libs.androidx.compose.ui.test.manifest
+
+    def ktor_version = "2.2.4"
+
+    // Ktor Client (Core)
+    implementation "io.ktor:ktor-client-core:$ktor_version"
+
+    // Ktor Client Engine (AndroidではOkHttpが一般的です)
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
+
+    // Ktor WebSockets
+    implementation "io.ktor:ktor-client-websockets:$ktor_version"
+
+    // (オプション) JSONを扱う場合 (今回はテキストのみですが、今後に備えて)
+    // implementation "io.ktor:ktor-client-content-negotiation:$ktor_version"
+    // implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
+
+    // ViewModel (UIロジックと通信ロジックの分離用)
+    def lifecycle_version = "2.9.4"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
+    // ViewModelでコルーチンスコープ(viewModelScope)を使うために必要
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+
+    // Desugaring ライブラリ
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.0.2"
+}
