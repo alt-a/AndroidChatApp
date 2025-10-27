@@ -1,0 +1,95 @@
+〇ベンダー署名付きのapk生成方法
+・付け方はマニュアルの通り
+
+マニュアルメモ
+・キーストアは鍵を格納するファイル
+→複数の鍵を格納できるので、目的別でストアの管理を推奨
+　例：商用本番、会社用、個人用など
+・アプリ更新時には更新前と同じキーストアで署名
+
+
+
+〇アプリストアの署名
+
+・基本はマニュアル通り
+・Docker必要
+・7zip必要
+
+1.app_test.tar.gzを7zipでgz外す
+※Windows標準機能では不可能
+
+2.Dockerイメージのロード（初回のみ）
+　解凍したapp_test.tarをユーザーフォルダ直下に置き
+　Docker起動中に以下のコマンド実行
+
+docker load -i app_test.tar
+
+3.アプリストアの署名付与
+以下2ファイルをユーザーフォルダ直下に置く
+
+・対象APKファイル
+・AppStoreSign.sh
+
+4.以下のコマンド実行
+
+・Linux系？
+docker run --rm -it --mount type=bind,source="$(pwd)",target=/home pana/sign:1.0 /home/<apk_name>.apk
+
+・PowerShell？
+docker run --rm -it --mount type=bind,source="${pwd}",target=/home pana/sign:1.0 /home/<apk_name>.apk
+
+・cmd
+docker run --rm -it --mount type=bind,source="%cd%",target=/home pana/sign:1.0 /home/<apk_name>.apk
+
+
+
+〇アプリのインストール方法
+
+1.adbコマンド仕様のための準備
+　以下の内容でユーザー環境変数のPathを編集、新規
+
+C:\Users\Hirayama\AppData\Local\Android\Sdk\platform-tools
+
+2.adbコマンド確認
+
+adb version
+adb devices
+
+3.インストール
+　以下のコマンドでインストール
+
+adb install <APKファイルのパス>
+
+4.アンインストール
+
+adb uninstall <パッケージ名>
+→com.example.小文字のプロジェクト名のヤツ
+
+※Stera TermonalはADBコマンド以外で制御することは不可能
+
+
+
+〇ベンダー署名の有無確認（やんなくてもいい）
+
+・AndroidStudioにあるapksigner.batを使用する
+→特定のパスからコマンドラインで実行
+→実行にはJavaもいる
+→apksignerとJAVA_HOME両方のPathを通す
+
+・JAVA_HOMEの設定
+→システム環境変数から新規
+
+変数名：JAVA_HOME
+変数値: C:\Program Files\Android\Android Studio\jbr
+
+・apksignerの設定
+→ユーザー環境変数のPathを編集、新規
+1つめ：%JAVA_HOME%\bin
+2つめ：C:\Users\ユーザーフォルダ\AppData\Local\Android\Sdk\build-tools\36.1.0
+
+・コマンド
+
+apksigner verify --verbose [APKをドラッグ&ドロップ]
+たぶんV2だけtrueになってるはず
+
+
