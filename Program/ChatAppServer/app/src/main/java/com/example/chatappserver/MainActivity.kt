@@ -101,7 +101,7 @@ class MainActivity : ComponentActivity() {
             // YourAppTheme { ... } のようなテーマで囲うのが一般的です
             Scaffold(
                 topBar = {
-                    TopAppBar(title = { Text("Chat Relay Server") }) // タイトル変更
+                    TopAppBar(title = { Text("Chat App Server") }) // タイトル変更
                 }
             ) { paddingValues ->
                 // ipAddressStateの値が変わると、この画面も自動で再描画される
