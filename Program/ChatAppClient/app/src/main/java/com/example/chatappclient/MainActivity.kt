@@ -12,13 +12,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel // ★ViewModelをCompose�
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.chatappclient.ui.theme.ChatRelayClientTheme // テーマ名はご自身のものに
+import com.example.chatappclient.ui.theme.ChatAppClientTheme // テーマ名はご自身のものに
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ChatRelayClientTheme {
+            ChatAppClientTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
