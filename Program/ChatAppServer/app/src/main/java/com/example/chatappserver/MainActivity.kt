@@ -13,10 +13,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -193,18 +195,31 @@ fun ServerHomeScreen(ipAddress: String) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues) // Scaffoldからのpaddingを適用
-                .padding(16.dp),  // コンテンツ自体のpadding
-            verticalArrangement = Arrangement.Center,
+                .padding(all = 8.dp),  // コンテンツ自体のpadding
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ConnectionUserCard(ipAddress)
+        }
+    }
+}
+
+@Composable
+fun ConnectionUserCard(text: String) {
+    Card(
+        modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "IPアドレス：",
                     fontWeight = FontWeight.Bold
                 )
-                Text(text = ipAddress)
+                Text(text = text)
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "PORT：",
