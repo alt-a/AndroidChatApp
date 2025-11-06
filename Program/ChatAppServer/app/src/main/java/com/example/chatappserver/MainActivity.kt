@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -240,4 +242,55 @@ fun ConnectionUserCard(text: String) {
 @Composable
 fun ServerHomeScreenPreview() {
     ServerHomeScreen("000.000.000.0")
+}
+
+@Composable
+fun ServerStartScreen() {
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "チャットアプリ",
+                fontSize = 36.sp,
+                modifier = Modifier.padding(8.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text(
+                text = "サーバー",
+                fontSize = 36.sp,
+                modifier = Modifier.padding(8.dp),
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(48.dp))
+            ExtendedFloatingActionButton(
+                onClick = {},
+                modifier = Modifier.padding(),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Text(
+                    text = "はじめる",
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(
+                        vertical = 16.dp,
+                        horizontal = 28.dp
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+    }
+}
+
+@Preview(device = Devices.PIXEL_2)
+@Composable
+fun ServerStartScreenPreview() {
+    ServerStartScreen()
 }
