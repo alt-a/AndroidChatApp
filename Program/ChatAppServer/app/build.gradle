@@ -83,4 +83,10 @@ dependencies {
 
     // 新しいjavaAPIを使うための設定(Core Library Desugaring)
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+
+    // navigation-composeライブラリ バージョン指定
+    def nav_version = "2.7.7"
+
+    // Navigation for Compose
+    implementation "androidx.navigation:navigation-compose:$nav_version"
 }
