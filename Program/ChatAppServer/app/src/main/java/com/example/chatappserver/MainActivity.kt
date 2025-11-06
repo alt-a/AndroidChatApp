@@ -20,6 +20,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -29,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -293,4 +296,54 @@ fun ServerStartScreen() {
 @Composable
 fun ServerStartScreenPreview() {
     ServerStartScreen()
+}
+
+@Composable
+fun StopServerConfirmAlert() {
+    AlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = ""
+            )
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "サーバーを終了します。"
+                )
+                Text(
+                    text = "よろしいですか？"
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {}
+            ) {
+                Text(
+                    text = "OK",
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {}
+            ) {
+                Text(
+                    text = "戻る"
+                )
+            }
+        },
+        onDismissRequest = {}
+    )
+}
+
+@Preview(device = Devices.PIXEL_2)
+@Composable
+fun StopServerConfirmAlertPreview() {
+    StopServerConfirmAlert()
 }
