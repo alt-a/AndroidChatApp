@@ -13,17 +13,30 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -69,7 +82,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -99,16 +111,11 @@ class MainActivity : ComponentActivity() {
         // 2. Jetpack ComposeでUIを構築
         setContent {
             // YourAppTheme { ... } のようなテーマで囲うのが一般的です
-            Scaffold(
-                topBar = {
-                    TopAppBar(title = { Text("Chat App Server") }) // タイトル変更
-                }
-            ) { paddingValues ->
-                // ipAddressStateの値が変わると、この画面も自動で再描画される
-                ServerInfoScreen(
-                    ipAddress = ipAddressState.value,
-                    padding = paddingValues
-                )
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                ServerHomeScreen(ipAddressState.value)
             }
         }
 
@@ -162,31 +169,75 @@ class MainActivity : ComponentActivity() {
 }
 
 // 画面表示用のComposable関数
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerInfoScreen(ipAddress: String, padding: PaddingValues) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding) // Scaffoldからのpaddingを適用
-            .padding(16.dp),  // コンテンツ自体のpadding
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "IPアドレス：",
-                fontWeight = FontWeight.Bold
+fun ServerHomeScreen(ipAddress: String) {
+    val scrollState = rememberScrollState()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                ),
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                title = { Text(text = "接続中ユーザー一覧") } // タイトル変更
             )
-            Text(text = ipAddress)
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = "PORT：",
-                fontWeight = FontWeight.Bold
-            )
-            // ポート番号を 8080 に変更
-            Text(text = "8080")
+    ) { paddingValues ->
+        // ipAddressStateの値が変わると、この画面も自動で再描画される
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues) // Scaffoldからのpaddingを適用
+                .padding(all = 8.dp)    // コンテンツ自体のpadding
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ConnectionUserCard(ipAddress)
         }
     }
+}
+
+@Composable
+fun ConnectionUserCard(text: String) {
+    Card(
+        modifier = Modifier.padding(vertical = 2.dp).fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "IPアドレス：",
+                    fontWeight = FontWeight.Bold
+                )
+                Text(text = text)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "PORT：",
+                    fontWeight = FontWeight.Bold
+                )
+                // ポート番号を 8080 に変更
+                Text(text = "8080")
+            }
+        }
+    }
+}
+
+@Preview(device = Devices.PIXEL_2)
+@Composable
+fun ServerHomeScreenPreview() {
+    ServerHomeScreen("000.000.000.0")
 }
