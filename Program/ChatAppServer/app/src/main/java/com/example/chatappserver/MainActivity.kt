@@ -46,6 +46,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import java.net.Inet4Address
 import kotlin.concurrent.thread
@@ -120,7 +123,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
-                ServerHomeScreen(ipAddressState.value)
+                ChatAppServerNavigation(ipAddressState.value)
             }
         }
 
@@ -248,7 +251,9 @@ fun ServerHomeScreenPreview() {
 }
 
 @Composable
-fun ServerStartScreen() {
+fun ServerStartScreen(
+    onStartup: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -273,7 +278,9 @@ fun ServerStartScreen() {
             )
             Spacer(modifier = Modifier.height(48.dp))
             ExtendedFloatingActionButton(
-                onClick = {},
+                onClick = {
+                    onStartup()
+                },
                 modifier = Modifier.padding(),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -295,7 +302,9 @@ fun ServerStartScreen() {
 @Preview(device = Devices.PIXEL_2)
 @Composable
 fun ServerStartScreenPreview() {
-    ServerStartScreen()
+    ServerStartScreen(
+        onStartup = {}
+    )
 }
 
 @Composable
@@ -346,4 +355,26 @@ fun StopServerConfirmAlert() {
 @Composable
 fun StopServerConfirmAlertPreview() {
     StopServerConfirmAlert()
+}
+
+@Composable
+fun ChatAppServerNavigation(text: String) {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = NavRoutes.START.route
+    ) {
+        composable(route = NavRoutes.START.route) {
+            ServerStartScreen(
+                onStartup = {
+                    navController.navigate(NavRoutes.HOME.route)
+                }
+            )
+        }
+
+        composable(route = NavRoutes.HOME.route) {
+            ServerHomeScreen(text)
+        }
+    }
 }
