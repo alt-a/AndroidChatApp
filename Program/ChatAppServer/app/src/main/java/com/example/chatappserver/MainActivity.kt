@@ -36,6 +36,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -179,8 +180,13 @@ class MainActivity : ComponentActivity() {
 // 画面表示用のComposable関数
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ServerHomeScreen(ipAddress: String) {
+fun ServerHomeScreen(
+    ipAddress: String,
+    onStop: () -> Unit
+) {
     val scrollState = rememberScrollState()
+    val showAlert = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -189,7 +195,11 @@ fun ServerHomeScreen(ipAddress: String) {
                     titleContentColor = MaterialTheme.colorScheme.primary
                 ),
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(
+                        onClick = {
+                            showAlert.value = true
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
                             contentDescription = "",
@@ -213,6 +223,16 @@ fun ServerHomeScreen(ipAddress: String) {
         ) {
             ConnectionUserCard(ipAddress)
         }
+    }
+
+    if (showAlert.value) {
+        StopServerConfirmAlert(
+            onDismissRequest = { showAlert.value = false },
+            onConfirm = {
+                showAlert.value = false
+                onStop()
+            }
+        )
     }
 }
 
@@ -247,7 +267,10 @@ fun ConnectionUserCard(text: String) {
 @Preview(device = Devices.PIXEL_2)
 @Composable
 fun ServerHomeScreenPreview() {
-    ServerHomeScreen("000.000.000.0")
+    ServerHomeScreen(
+        ipAddress = "000.000.000.0",
+        onStop = {}
+    )
 }
 
 @Composable
@@ -308,7 +331,10 @@ fun ServerStartScreenPreview() {
 }
 
 @Composable
-fun StopServerConfirmAlert() {
+fun StopServerConfirmAlert(
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit
+) {
     AlertDialog(
         icon = {
             Icon(
@@ -330,7 +356,7 @@ fun StopServerConfirmAlert() {
         },
         confirmButton = {
             TextButton(
-                onClick = {}
+                onClick = onConfirm
             ) {
                 Text(
                     text = "OK",
@@ -340,21 +366,24 @@ fun StopServerConfirmAlert() {
         },
         dismissButton = {
             TextButton(
-                onClick = {}
+                onClick = onDismissRequest
             ) {
                 Text(
                     text = "戻る"
                 )
             }
         },
-        onDismissRequest = {}
+        onDismissRequest = onDismissRequest
     )
 }
 
 @Preview(device = Devices.PIXEL_2)
 @Composable
 fun StopServerConfirmAlertPreview() {
-    StopServerConfirmAlert()
+    StopServerConfirmAlert(
+        onConfirm = {},
+        onDismissRequest = {}
+    )
 }
 
 @Composable
@@ -374,7 +403,12 @@ fun ChatAppServerNavigation(text: String) {
         }
 
         composable(route = NavRoutes.HOME.route) {
-            ServerHomeScreen(text)
+            ServerHomeScreen(
+                ipAddress = text,
+                onStop = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }
