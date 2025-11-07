@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.chatappserver.navigation.NavRoutes
 import com.example.chatappserver.ui.screen.home.ServerHomeScreen
 import com.example.chatappserver.ui.screen.start.ServerStartScreen
 
