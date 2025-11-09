@@ -13,6 +13,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 
+/**
+ * サーバー終了確認アラート
+ * @param onDismissRequest  : 「戻る」ボタン押下時 画面遷移用コールバック
+ * @param onConfirm         : 「OK」ボタン押下時 画面遷移用コールバック
+ */
 @Composable
 fun StopServerConfirmAlert(
     onDismissRequest: () -> Unit,
@@ -37,7 +42,7 @@ fun StopServerConfirmAlert(
                 )
             }
         },
-        confirmButton = {
+        confirmButton = {   // "OK"
             TextButton(
                 onClick = onConfirm
             ) {
@@ -47,7 +52,7 @@ fun StopServerConfirmAlert(
                 )
             }
         },
-        dismissButton = {
+        dismissButton = {   // "戻る"
             TextButton(
                 onClick = onDismissRequest
             ) {

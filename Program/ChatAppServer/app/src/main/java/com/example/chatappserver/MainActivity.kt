@@ -90,6 +90,8 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
             ) {
+                // 起動時画面を表示
+                // ipAddressStateの値が変わると、この画面も自動で再描画される
                 ChatAppServerNavigation(ipAddressState.value)
             }
         }

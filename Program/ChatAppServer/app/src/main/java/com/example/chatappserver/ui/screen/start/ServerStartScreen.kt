@@ -18,6 +18,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * アプリ起動時画面
+ * @param onStartup : 画面遷移用コールバック
+ */
 @Composable
 fun ServerStartScreen(
     onStartup: () -> Unit
@@ -47,6 +51,7 @@ fun ServerStartScreen(
             Spacer(modifier = Modifier.Companion.height(48.dp))
             ExtendedFloatingActionButton(
                 onClick = {
+                    // ホーム画面へ遷移
                     onStartup()
                 },
                 modifier = Modifier.Companion.padding(),

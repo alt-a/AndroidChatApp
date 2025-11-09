@@ -27,14 +27,21 @@ import androidx.compose.ui.unit.dp
 import com.example.chatappserver.ui.component.ConnectionUserCard
 import com.example.chatappserver.ui.component.StopServerConfirmAlert
 
-// 画面表示用のComposable関数
+/**
+ * ホーム画面
+ * @param ipAddress : IPアドレステキスト
+ * @param onStop    : 画面遷移用コールバック
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerHomeScreen(
     ipAddress: String,
     onStop: () -> Unit
 ) {
+    // リストスクロール状態管理
     val scrollState = rememberScrollState()
+
+    // アラート表示状態管理
     val showAlert = remember { mutableStateOf(false) }
 
     Scaffold(
@@ -44,9 +51,10 @@ fun ServerHomeScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     titleContentColor = MaterialTheme.colorScheme.primary
                 ),
-                navigationIcon = {
+                navigationIcon = {  // 戻るボタン
                     IconButton(
                         onClick = {
+                            // サーバー終了確認アラート表示
                             showAlert.value = true
                         }
                     ) {
@@ -57,11 +65,10 @@ fun ServerHomeScreen(
                         )
                     }
                 },
-                title = { Text(text = "接続中ユーザー一覧") } // タイトル変更
+                title = { Text(text = "接続中ユーザー一覧") }
             )
         }
     ) { paddingValues ->
-        // ipAddressStateの値が変わると、この画面も自動で再描画される
         Column(
             modifier = Modifier.Companion
                 .fillMaxSize()
@@ -71,16 +78,18 @@ fun ServerHomeScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
+            // ユーザー情報表示
             ConnectionUserCard(ipAddress)
         }
     }
 
+    // ----- サーバー終了確認アラート表示 -----
     if (showAlert.value) {
         StopServerConfirmAlert(
-            onDismissRequest = { showAlert.value = false },
-            onConfirm = {
+            onDismissRequest = { showAlert.value = false }, // "戻る"
+            onConfirm = {   // "OK"
                 showAlert.value = false
-                onStop()
+                onStop()    // 起動時画面に戻る
             }
         )
     }

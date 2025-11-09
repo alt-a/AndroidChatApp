@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * 接続中ユーザー情報表示Card
+ */
 @Composable
 fun ConnectionUserCard(text: String) {
     Card(
