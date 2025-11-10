@@ -13,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 /**
@@ -20,9 +22,8 @@ import androidx.compose.ui.unit.dp
  * @param viewModel 共有する ChatViewModel
  * @param onDisconnect 切断時に呼び出されるコールバック (画面遷移用)
  */
-@OptIn(ExperimentalMaterial3Api::class) // ★TopAppBar用に必要
 @Composable
-fun ChatScreen(
+fun ClientChatScreen(
     viewModel: ChatViewModel,
     onDisconnect: () -> Unit // ★コールバックを受け取る
 ) {
@@ -36,11 +37,11 @@ fun ChatScreen(
     // ViewModelが保持している接続状態の監視
     val connectionStatus by viewModel.connectionStatus.collectAsState()
 
-    // 画面下部のメッセージ入力欄用の状態変数
-    var messageText by remember { mutableStateOf("") }
-
-    // スクロール状態を管理
-    val listState = rememberLazyListState()
+    val uiState = ClientChatScreenUIState(
+        messages = messages,
+        userName = myName,
+        connectionStatus = connectionStatus
+    )
 
     // --- 要望2: 接続が切れたら自動で戻る ---
     LaunchedEffect(connectionStatus) {
@@ -51,70 +52,13 @@ fun ChatScreen(
         }
     }
 
-    // messagesリストの中身が変わるたびに、一番下までスクロールする
-    LaunchedEffect(messages) {
-        if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(index = messages.size - 1)
-        }
-    }
-
-    // ★画面全体を Scaffold で囲む
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "チャット (${connectionStatus})") }, // 接続状態を表示
-                actions = {
-                    // --- 要望1: 接続画面に戻るボタン ---
-                    IconButton(onClick = {
-                        viewModel.disconnect() // ViewModel に切断を通知
-                        // onDisconnect() // LaunchedEffect が検知するので不要
-                    }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "切断")
-                    }
-                }
-            )
-        },
-        // ★メッセージ送信欄 (画面下部) を Scaffold の bottomBar に移動
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = messageText,
-                    onValueChange = { messageText = it },
-                    modifier = Modifier.weight(1f),
-                    label = { Text("メッセージ") }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        viewModel.sendMessage(messageText)
-                        messageText = ""
-                    },
-                    enabled = messageText.isNotBlank() && connectionStatus == "Connected"
-                ) {
-                    Text(text = "送信")
-                }
-            }
-        }
-    ) { paddingValues -> // ★Scaffold が計算した padding
-
-        // --- メッセージリスト ---
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues) // ★Scaffold の padding を適用
-                .padding(horizontal = 8.dp), // 左右の余白
-        ) {
-            items(messages) { msg ->
-                ChatMessageItem(msg = msg, isMine = (msg.user == myName))
-            }
-        }
-    }
+    // ステートレスUIコンポーネント
+    ClientChatScreenContent(
+        uiState = uiState,
+        onDisconnect = viewModel::disconnect,
+        onDisconnectButtonClick = onDisconnect,
+        onSendMessageButtonClick = viewModel::sendMessage
+    )
 }
 
 /**
@@ -150,4 +94,123 @@ fun ChatMessageItem(msg: ChatMessage, isMine: Boolean) {
             )
         }
     }
+}
+
+/**
+ * チャット画面 ViewModel保持データ表示用データクラス
+ */
+data class ClientChatScreenUIState(
+    val messages: List<ChatMessage> = listOf(
+        ChatMessage(
+            user = "ユーザー1",
+            message = "こんにちは。"
+        ),
+        ChatMessage(
+            user = "ユーザー2",
+            message = "おつかれさまです。"
+        )
+    ),
+    val userName: String = "ユーザー",
+    val connectionStatus: String = "Disconnected"
+)
+
+/**
+ * チャット画面 ステートレスUIコンポーネント
+ * @param uiState                   : ViewModelが保持するUIデータ
+ * @param onDisconnect              : サーバー切断関数
+ * @param onDisconnectButtonClick   : 画面遷移用コールバック関数
+ * @param onSendMessageButtonClick  : メッセージ送信関数
+ */
+@OptIn(ExperimentalMaterial3Api::class) // ★TopAppBar用に必要
+@Composable
+fun ClientChatScreenContent(
+    uiState: ClientChatScreenUIState,
+    onDisconnect: () -> Unit,
+    onDisconnectButtonClick: () -> Unit,
+    onSendMessageButtonClick: (message: String) -> Unit
+) {
+    // 画面下部のメッセージ入力欄用の状態変数
+    var messageText by remember { mutableStateOf("") }
+
+    // スクロール状態を管理
+    val listState = rememberLazyListState()
+
+    // messagesリストの中身が変わるたびに、一番下までスクロールする
+    LaunchedEffect(uiState.messages) {
+        if (uiState.messages.isNotEmpty()) {
+            listState.animateScrollToItem(index = uiState.messages.size - 1)
+        }
+    }
+
+    // ★画面全体を Scaffold で囲む
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "チャット (${uiState.connectionStatus})") }, // 接続状態を表示
+                actions = {
+                    // --- 要望1: 接続画面に戻るボタン ---
+                    IconButton(onClick = {
+                        onDisconnect()
+                        onDisconnectButtonClick()
+//                        viewModel.disconnect() // ViewModel に切断を通知
+                        // onDisconnect() // LaunchedEffect が検知するので不要
+                    }) {
+                        Icon(Icons.Default.ExitToApp, contentDescription = "切断")
+                    }
+                }
+            )
+        },
+        // ★メッセージ送信欄 (画面下部) を Scaffold の bottomBar に移動
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = messageText,
+                    onValueChange = { messageText = it },
+                    modifier = Modifier.weight(1f),
+                    label = { Text("メッセージ") }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {
+                        onSendMessageButtonClick(messageText)
+//                        viewModel.sendMessage(messageText)
+                        messageText = ""
+                    },
+                    enabled = messageText.isNotBlank() && uiState.connectionStatus == "Connected"
+                ) {
+                    Text(text = "送信")
+                }
+            }
+        }
+    ) { paddingValues -> // ★Scaffold が計算した padding
+
+        // --- メッセージリスト ---
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues) // ★Scaffold の padding を適用
+                .padding(horizontal = 8.dp), // 左右の余白
+        ) {
+            items(uiState.messages) { msg ->
+                ChatMessageItem(msg = msg, isMine = (msg.user == uiState.userName))
+            }
+        }
+    }
+}
+
+@Preview(device = Devices.PIXEL_2)
+@Composable
+fun ClientChatScreenContentPreview() {
+    ClientChatScreenContent(
+        uiState = ClientChatScreenUIState(),
+        onDisconnect = {},
+        onDisconnectButtonClick = {},
+        onSendMessageButtonClick = {}
+    )
 }

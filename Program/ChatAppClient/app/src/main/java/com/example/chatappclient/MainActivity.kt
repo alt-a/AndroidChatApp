@@ -65,7 +65,7 @@ fun ChatAppNavigation() {
 
         // 画面2: チャット画面
         composable(route = "chat") {
-            ChatScreen(
+            ClientChatScreen(
                 viewModel = chatViewModel, // ★ログイン画面と【同じ】ViewModelを渡す
                 // ★「切断」時にログイン画面に戻るコールバックを渡す
                 onDisconnect = {
