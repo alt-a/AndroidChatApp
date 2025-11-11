@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel // ★ViewModelをCompose�
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chatappclient.ui.screen.chat.ClientChatScreen
 import com.example.chatappclient.ui.theme.ChatAppClientTheme // テーマ名はご自身のものに
 
 class MainActivity : ComponentActivity() {
