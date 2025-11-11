@@ -2,9 +2,11 @@ package com.example.chatappclient
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons // ★追加
 import androidx.compose.material.icons.filled.ExitToApp // ★追加
 import androidx.compose.material.icons.filled.Send
@@ -14,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,35 +66,67 @@ fun ClientChatScreen(
 }
 
 /**
- * チャットメッセージ1行分のUI (Discord風 左寄せ)
+ * チャットバブル
+ * @param msg       : チャットメッセージ
+ * @param isMine    : 送信メッセージ（true）、受信メッセージ（false）
  */
 @Composable
-fun ChatMessageItem(msg: ChatMessage, isMine: Boolean) {
-    Row(
+fun ChatBubble(msg: ChatMessage, isMine: Boolean) {
+    // 送信・受信で吹き出し方向を変更
+    val sendBubbleShape = RoundedCornerShape(
+        topStart = 10.dp,
+        topEnd = 10.dp,
+        bottomStart = 10.dp,
+        bottomEnd = 0.dp    // 直角
+    )
+    val receiveBubbleShape = RoundedCornerShape(
+        topStart = 0.dp,    // 直角
+        topEnd = 10.dp,
+        bottomStart = 10.dp,
+        bottomEnd = 10.dp
+    )
+
+    Column(
+        verticalArrangement = Arrangement.Top,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .fillMaxWidth(0.8f)
+            .padding(vertical = 4.dp)
+            .wrapContentWidth(
+                align =
+                    if (isMine) Alignment.End   // 送信メッセージ: 画面右側に表示
+                    else Alignment.Start        // 受信メッセージ: 画面左側に表示
+            )
     ) {
-        // Discord風: 常に左寄せ
-        Column(
-            modifier = Modifier
-                .background(
-                    color = if (isMine) Color(0xFFDCF8C6) else Color.White, // 自分が送ったものだけ色を変える
-                    shape = MaterialTheme.shapes.medium
-                )
-                .padding(8.dp)
-        ) {
-            // ユーザー名
+        // ユーザー名
+        if (isMine == false) {
             Text(
                 text = msg.user,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            // メッセージ本文
+        }
+        // メッセージ本文
+        Surface(
+            color =
+                if (isMine) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onPrimary,
+            shape =
+                if (isMine) sendBubbleShape
+                else receiveBubbleShape,
+            shadowElevation = 3.dp
+        ) {
             Text(
                 text = msg.message,
-                style = MaterialTheme.typography.bodyLarge
+                textAlign = TextAlign.Left,
+                style = MaterialTheme.typography.bodyLarge,
+                color =
+                    if (isMine) MaterialTheme.colorScheme.onPrimary
+                    else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(
+                    vertical = 11.dp,
+                    horizontal = 15.dp
+                )
             )
         }
     }
@@ -111,7 +146,7 @@ data class ClientChatScreenUIState(
             message = "おつかれさまです。"
         )
     ),
-    val userName: String = "ユーザー",
+    val userName: String = "ユーザー1",
     val connectionStatus: String = "Disconnected"
 )
 
@@ -219,11 +254,22 @@ fun ClientChatScreenContent(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues) // ★Scaffold の padding を適用
-                .padding(horizontal = 8.dp), // 左右の余白
+                .padding(paddingValues), // ★Scaffold の padding を適用
+            contentPadding = PaddingValues(
+                vertical = 10.dp,
+                horizontal = 15.dp
+            )
         ) {
             items(uiState.messages) { msg ->
-                ChatMessageItem(msg = msg, isMine = (msg.user == uiState.userName))
+                val isMine = (msg.user == uiState.userName)
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment =
+                        if (isMine) Alignment.CenterEnd // 送信メッセージ: 画面右側に表示
+                        else Alignment.CenterStart      // 受信メッセージ: 画面左側に表示
+                ) {
+                    ChatBubble(msg = msg, isMine = isMine)
+                }
             }
         }
     }
