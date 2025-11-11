@@ -8,15 +8,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel // ★ViewModelをComposeで使うために import
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chatappclient.ui.screen.chat.ClientChatScreen
 import com.example.chatappclient.ui.theme.ChatAppClientTheme // テーマ名はご自身のものに
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 描画領域を画面全体に広げる
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             ChatAppClientTheme {
                 Surface(
@@ -65,7 +71,7 @@ fun ChatAppNavigation() {
 
         // 画面2: チャット画面
         composable(route = "chat") {
-            ChatScreen(
+            ClientChatScreen(
                 viewModel = chatViewModel, // ★ログイン画面と【同じ】ViewModelを渡す
                 // ★「切断」時にログイン画面に戻るコールバックを渡す
                 onDisconnect = {
