@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons // ★追加
 import androidx.compose.material.icons.filled.ExitToApp // ★追加
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.* // ★ (Button, Text などまとめて import)
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -170,28 +171,44 @@ fun ClientChatScreenContent(
         },
         // ★メッセージ送信欄 (画面下部) を Scaffold の bottomBar に移動
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                // 背景色設定
+                color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
-                OutlinedTextField(
-                    value = messageText,
-                    onValueChange = { messageText = it },
-                    modifier = Modifier.weight(1f),
-                    label = { Text("メッセージ") }
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = {
-                        onSendMessageButtonClick(messageText)
-//                        viewModel.sendMessage(messageText)
-                        messageText = ""
-                    },
-                    enabled = messageText.isNotBlank() && uiState.connectionStatus == "Connected"
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .imePadding()               // ソフトキーボード表示時に押し上げる
+                        .navigationBarsPadding(),   // システムナビゲーションバーの高さ分押し上げる
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(text = "送信")
+                    OutlinedTextField(
+                        value = messageText,
+                        onValueChange = { messageText = it },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text(
+                            text = "メッセージ",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ) }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    IconButton(
+                        onClick = {
+                            onSendMessageButtonClick(messageText)
+                            messageText = ""
+                        },
+                        enabled = messageText.isNotBlank() && uiState.connectionStatus == "Connected",
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Send,
+                            contentDescription = "",
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
                 }
             }
         }

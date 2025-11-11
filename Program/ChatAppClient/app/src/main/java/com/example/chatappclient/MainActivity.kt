@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.viewmodel.compose.viewModel // ★ViewModelをComposeで使うために import
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,6 +18,10 @@ import com.example.chatappclient.ui.theme.ChatAppClientTheme // テーマ名は�
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 描画領域を画面全体に広げる
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             ChatAppClientTheme {
                 Surface(
