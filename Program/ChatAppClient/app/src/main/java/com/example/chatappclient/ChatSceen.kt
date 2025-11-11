@@ -147,7 +147,7 @@ fun ClientChatScreenContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = "チャット (${uiState.connectionStatus})") }, // 接続状態を表示
-                actions = {
+                navigationIcon = {
                     // --- 要望1: 接続画面に戻るボタン ---
                     IconButton(onClick = {
                         onDisconnect()
@@ -155,9 +155,17 @@ fun ClientChatScreenContent(
 //                        viewModel.disconnect() // ViewModel に切断を通知
                         // onDisconnect() // LaunchedEffect が検知するので不要
                     }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "切断")
+                        Icon(
+                            imageVector = Icons.Default.ExitToApp,
+                            contentDescription = "切断",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
             )
         },
         // ★メッセージ送信欄 (画面下部) を Scaffold の bottomBar に移動
