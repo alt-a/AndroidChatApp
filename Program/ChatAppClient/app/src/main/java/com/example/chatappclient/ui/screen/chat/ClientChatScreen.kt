@@ -26,6 +26,7 @@ fun ClientChatScreen(
     // ViewModelが保持している接続状態の監視
     val connectionStatus by viewModel.connectionStatus.collectAsState()
 
+    // ステートレスUIコンポーネントにViewModelデータを渡すための準備
     val uiState = ClientChatScreenUIState(
         messages = messages,
         userName = myName,

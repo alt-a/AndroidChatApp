@@ -95,7 +95,6 @@ fun ClientChatScreenContent(
                 )
             )
         },
-        // ★メッセージ送信欄 (画面下部) を Scaffold の bottomBar に移動
         bottomBar = {
             Surface(
                 // 背景色設定
@@ -123,6 +122,7 @@ fun ClientChatScreenContent(
                     Spacer(modifier = Modifier.Companion.width(8.dp))
                     IconButton(
                         onClick = {
+                            // メッセージ送信処理
                             onSendMessageButtonClick(messageText)
                             messageText = ""
                         },

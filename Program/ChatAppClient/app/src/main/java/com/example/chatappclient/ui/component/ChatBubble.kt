@@ -29,10 +29,10 @@ fun ChatBubble(msg: ChatMessage, isMine: Boolean) {
         topStart = 10.dp,
         topEnd = 10.dp,
         bottomStart = 10.dp,
-        bottomEnd = 0.dp    // 直角
+        bottomEnd = 0.dp    // 送信メッセージ: 右下を直角にする
     )
     val receiveBubbleShape = RoundedCornerShape(
-        topStart = 0.dp,    // 直角
+        topStart = 0.dp,    // 受信メッセージ: 左上を直角にする
         topEnd = 10.dp,
         bottomStart = 10.dp,
         bottomEnd = 10.dp
@@ -41,7 +41,7 @@ fun ChatBubble(msg: ChatMessage, isMine: Boolean) {
     Column(
         verticalArrangement = Arrangement.Top,
         modifier = Modifier.Companion
-            .fillMaxWidth(0.8f)
+            .fillMaxWidth(0.8f) // チャットバブルの横幅を最大サイズの80%に制限
             .padding(vertical = 4.dp)
             .wrapContentWidth(
                 align =
@@ -61,18 +61,20 @@ fun ChatBubble(msg: ChatMessage, isMine: Boolean) {
         // メッセージ本文
         Surface(
             color =
+                // 送信・受信でチャットバブル背景色を反転
                 if (isMine) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onPrimary,
             shape =
                 if (isMine) sendBubbleShape
                 else receiveBubbleShape,
-            shadowElevation = 3.dp
+            shadowElevation = 3.dp  // 影を付ける
         ) {
             Text(
                 text = msg.message,
                 textAlign = TextAlign.Companion.Left,
                 style = MaterialTheme.typography.bodyLarge,
                 color =
+                    // 送信・受信で文字色を反転
                     if (isMine) MaterialTheme.colorScheme.onPrimary
                     else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.Companion.padding(
