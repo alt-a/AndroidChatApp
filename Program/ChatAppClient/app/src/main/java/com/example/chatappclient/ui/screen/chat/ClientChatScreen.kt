@@ -5,8 +5,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.chatappclient.ChatViewModel
-import com.example.chatappclient.ui.screen.chat.ClientChatScreenContent
-import com.example.chatappclient.ui.screen.chat.ClientChatScreenUIState
 
 /**
  * チャット画面
