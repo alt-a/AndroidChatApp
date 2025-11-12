@@ -1,4 +1,4 @@
-package com.example.chatappclient
+package com.example.chatappclient.ui.screen.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,14 +20,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.chatappclient.ChatViewModel
 
 /**
- * ログイン画面 (IPと名前を入力)
+ * ユーザー名入力画面
  * @param viewModel 共有する ChatViewModel
  * @param onConnect 接続ボタンが押されたときのコールバック (画面遷移用)
  */
 @Composable
-fun LoginScreen(
+fun ClientLoginScreen(
     viewModel: ChatViewModel,
     onConnect: () -> Unit // "() -> Unit" は「引数なし、戻り値なしの関数」という意味
 ) {
@@ -48,14 +50,14 @@ fun LoginScreen(
     }
 
     Column(
-        modifier = Modifier
+        modifier = Modifier.Companion
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.Companion.CenterHorizontally
     ) {
-        Text(text = "サーバーに接続", style = androidx.compose.material3.MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(text = "サーバーに接続", style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.Companion.height(16.dp))
 
         // IPアドレス入力欄
         OutlinedTextField(
@@ -63,7 +65,7 @@ fun LoginScreen(
             onValueChange = { ip = it },
             label = { Text("サーバーIPアドレス") }
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.Companion.height(8.dp))
 
         // 名前入力欄
         OutlinedTextField(
@@ -71,7 +73,7 @@ fun LoginScreen(
             onValueChange = { name = it },
             label = { Text("あなたの名前") }
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.Companion.height(16.dp))
 
         // 接続ボタン
         Button(
