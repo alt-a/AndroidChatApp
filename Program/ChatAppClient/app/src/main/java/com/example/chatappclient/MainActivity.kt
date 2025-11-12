@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.chatappclient.ui.screen.chat.ClientChatScreen
+import com.example.chatappclient.ui.screen.login.ClientLoginScreen
 import com.example.chatappclient.ui.theme.ChatAppClientTheme // テーマ名はご自身のものに
 
 class MainActivity : ComponentActivity() {
@@ -60,7 +61,7 @@ fun ChatAppNavigation() {
 
         // 画面1: ログイン画面
         composable(route = "login") {
-            LoginScreen(
+            ClientLoginScreen(
                 viewModel = chatViewModel, // ★ViewModelを渡す
                 onConnect = {
                     // 接続ボタンが押されたら、チャット画面に遷移
