@@ -6,10 +6,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +34,7 @@ import androidx.compose.ui.unit.dp
  * @param uiState       : ViewModelが保持するUIデータ
  * @param onConnect     : サーバー接続関数
  */
+@OptIn(ExperimentalMaterial3Api::class) // ★TopAppBar用に必要
 @Composable
 fun ClientLoginScreenContent(
     uiState: ClientLoginScreenUIState,
@@ -35,45 +44,69 @@ fun ClientLoginScreenContent(
     var ip by remember { mutableStateOf("192.168.11.16") } // IP入力用
     var name by remember { mutableStateOf("alta") }          // 名前入力用
 
-    Column(
-        modifier = Modifier.Companion
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Companion.CenterHorizontally
-    ) {
-        Text(text = "サーバーに接続", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.Companion.height(16.dp))
-
-        // IPアドレス入力欄
-        OutlinedTextField(
-            value = ip,
-            onValueChange = { ip = it },
-            label = { Text("サーバーIPアドレス") }
-        )
-        Spacer(modifier = Modifier.Companion.height(8.dp))
-
-        // 名前入力欄
-        OutlinedTextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("あなたの名前") }
-        )
-        Spacer(modifier = Modifier.Companion.height(16.dp))
-
-        // 接続ボタン
-        Button(
-            onClick = {
-                // ボタンが押されたら...
-                // 1. ViewModelのconnectメソッドを呼ぶ（だけにする）
-//                viewModel.connect(ip, name)
-                onConnect(ip, name)
-            },
-            // ★接続中はボタンを押せなくする
-            enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != "Connecting...")
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "ユーザー名設定") },
+                navigationIcon = {
+                    IconButton(
+                        onClick = {}
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "戻る",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier.Companion
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
-            // ★接続状態に応じてボタンの文字を変える
-            Text(text = if (uiState.connectionStatus == "Connecting...") "接続中..." else "接続")
+            Text(text = "サーバーに接続", style = MaterialTheme.typography.headlineSmall)
+            Spacer(modifier = Modifier.Companion.height(16.dp))
+
+            // IPアドレス入力欄
+            OutlinedTextField(
+                value = ip,
+                onValueChange = { ip = it },
+                label = { Text("サーバーIPアドレス") }
+            )
+            Spacer(modifier = Modifier.Companion.height(8.dp))
+
+            // 名前入力欄
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("あなたの名前") }
+            )
+            Spacer(modifier = Modifier.Companion.height(16.dp))
+
+            // 接続ボタン
+            Button(
+                onClick = {
+                    // ボタンが押されたら...
+                    // 1. ViewModelのconnectメソッドを呼ぶ（だけにする）
+//                viewModel.connect(ip, name)
+                    onConnect(ip, name)
+                },
+                // ★接続中はボタンを押せなくする
+                enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != "Connecting...")
+            ) {
+                // ★接続状態に応じてボタンの文字を変える
+                Text(text = if (uiState.connectionStatus == "Connecting...") "接続中..." else "接続")
+            }
         }
     }
 }
