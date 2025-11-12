@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +44,7 @@ fun ClientLoginScreenContent(
     onConnect: (ip: String, name: String) -> Unit
 ) {
     // 画面内で使用する一時的な状態変数
-    var ip by remember { mutableStateOf("192.168.11.16") } // IP入力用
+    var ip by remember { mutableStateOf("192.168.11.17") } // IP入力用
     var name by remember { mutableStateOf("alta") }          // 名前入力用
 
     Scaffold(
@@ -70,20 +73,13 @@ fun ClientLoginScreenContent(
             modifier = Modifier.Companion
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(16.dp)
+                .imePadding(),      // ソフトキーボード表示時に押し上げる
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
-            Text(text = "サーバーに接続", style = MaterialTheme.typography.headlineSmall)
+            Text(text = "ユーザー名を入力してください", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.Companion.height(16.dp))
-
-            // IPアドレス入力欄
-            OutlinedTextField(
-                value = ip,
-                onValueChange = { ip = it },
-                label = { Text("サーバーIPアドレス") }
-            )
-            Spacer(modifier = Modifier.Companion.height(8.dp))
 
             // 名前入力欄
             OutlinedTextField(
@@ -94,7 +90,7 @@ fun ClientLoginScreenContent(
             Spacer(modifier = Modifier.Companion.height(16.dp))
 
             // 接続ボタン
-            Button(
+            ElevatedButton(
                 onClick = {
                     // ボタンが押されたら...
                     // 1. ViewModelのconnectメソッドを呼ぶ（だけにする）
@@ -102,10 +98,14 @@ fun ClientLoginScreenContent(
                     onConnect(ip, name)
                 },
                 // ★接続中はボタンを押せなくする
-                enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != "Connecting...")
+                enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != "Connecting..."),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
             ) {
                 // ★接続状態に応じてボタンの文字を変える
-                Text(text = if (uiState.connectionStatus == "Connecting...") "接続中..." else "接続")
+                Text(text = if (uiState.connectionStatus == "Connecting...") "接続中..." else "OK")
             }
         }
     }
