@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chatappclient.ui.component.ChatBubble
+import com.example.chatappclient.ui.component.EndChatConfirmAlert
 
 /**
  * チャット画面 ステートレスUIコンポーネント
@@ -59,6 +60,9 @@ fun ClientChatScreenContent(
     // 画面下部のメッセージ入力欄用の状態変数
     var messageText by remember { mutableStateOf("") }
 
+    // アラート表示状態管理
+    val showAlert = remember { mutableStateOf(false) }
+
     // スクロール状態を管理
     val listState = rememberLazyListState()
 
@@ -74,13 +78,9 @@ fun ClientChatScreenContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = "チャット (${uiState.connectionStatus})") }, // 接続状態を表示
-                navigationIcon = {
-                    // --- 要望1: 接続画面に戻るボタン ---
+                navigationIcon = {  // 戻るボタン
                     IconButton(onClick = {
-                        onDisconnect()
-                        onDisconnectButtonClick()
-//                        viewModel.disconnect() // ViewModel に切断を通知
-                        // onDisconnect() // LaunchedEffect が検知するので不要
+                        showAlert.value = true  // チャット終了確認アラート表示
                     }) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
@@ -165,6 +165,18 @@ fun ClientChatScreenContent(
                 }
             }
         }
+    }
+
+    // ----- チャット終了確認アラート表示 -----
+    if (showAlert.value) {
+        EndChatConfirmAlert(
+            onDismissRequest = { showAlert.value = false }, // "戻る"
+            onConfirm = {   // "OK"
+                showAlert.value = false
+                onDisconnect()              // ViewModel に切断を通知
+                onDisconnectButtonClick()   // 起動時画面に戻る
+            }
+        )
     }
 }
 

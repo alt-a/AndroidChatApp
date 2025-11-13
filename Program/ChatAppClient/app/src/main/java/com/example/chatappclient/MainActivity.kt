@@ -92,8 +92,8 @@ fun ChatAppClientNavigation() {
                 viewModel = chatViewModel, // ★ログイン画面と【同じ】ViewModelを渡す
                 // ★「切断」時にログイン画面に戻るコールバックを渡す
                 onDisconnect = {
-                    // "login" 画面に戻る (スタックをクリア)
-                    navController.popBackStack(route = "login", inclusive = false)
+                    // 起動時画面に戻る (スタックをクリア)
+                    navController.popBackStack(route = NavRoutes.START.route, inclusive = false)
                 }
             )
         }
