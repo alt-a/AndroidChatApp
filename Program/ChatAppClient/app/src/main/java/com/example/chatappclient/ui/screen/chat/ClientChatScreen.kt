@@ -8,8 +8,8 @@ import com.example.chatappclient.ChatViewModel
 
 /**
  * チャット画面
- * @param viewModel 共有する ChatViewModel
- * @param onDisconnect 切断時に呼び出されるコールバック (画面遷移用)
+ * @param viewModel     : 共有する ChatViewModel
+ * @param onDisconnect  : 切断時に呼び出されるコールバック (画面遷移用)
  */
 @Composable
 fun ClientChatScreen(
@@ -33,11 +33,11 @@ fun ClientChatScreen(
         connectionStatus = connectionStatus
     )
 
-    // --- 要望2: 接続が切れたら自動で戻る ---
+    // --- 接続が切れたら自動で戻る ---
     LaunchedEffect(connectionStatus) {
         if (connectionStatus != "Connected" && connectionStatus != "Connecting...") {
             // 接続状態が "Connected" 以外 (Error, Disconnected など) になったら
-            // ログイン画面に戻る
+            // 起動時画面に戻る
             onDisconnect()
         }
     }
