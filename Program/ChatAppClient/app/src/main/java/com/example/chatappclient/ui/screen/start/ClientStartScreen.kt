@@ -20,9 +20,12 @@ import androidx.compose.ui.unit.sp
 
 /**
  * アプリ起動時画面
+ * @param onStartup : 「はじめる」ボタン押下時 画面遷移用コールバック
  */
 @Composable
-fun ClientStartScreen() {
+fun ClientStartScreen(
+    onStartup: () -> Unit
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
@@ -43,6 +46,7 @@ fun ClientStartScreen() {
             ExtendedFloatingActionButton(
                 onClick = {
                     // ユーザー名入力画面へ遷移
+                    onStartup()
                 },
                 modifier = Modifier.Companion.padding(),
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -65,5 +69,7 @@ fun ClientStartScreen() {
 @Preview(device = Devices.PIXEL_2)
 @Composable
 fun ClientStartScreenPreview() {
-    ClientStartScreen()
+    ClientStartScreen(
+        onStartup = {}
+    )
 }

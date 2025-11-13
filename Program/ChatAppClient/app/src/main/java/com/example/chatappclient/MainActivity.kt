@@ -13,8 +13,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel // ★ViewModelをCompose�
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chatappclient.navigation.NavRoutes
 import com.example.chatappclient.ui.screen.chat.ClientChatScreen
 import com.example.chatappclient.ui.screen.login.ClientLoginScreen
+import com.example.chatappclient.ui.screen.start.ClientStartScreen
 import com.example.chatappclient.ui.theme.ChatAppClientTheme // テーマ名はご自身のものに
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +33,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // ★アプリ本体の画面(NavHost)を呼び出す
-                    ChatAppNavigation()
+                    ChatAppClientNavigation()
                 }
             }
         }
@@ -42,7 +44,7 @@ class MainActivity : ComponentActivity() {
  * アプリの画面遷移（ナビゲーション）を管理する Composable
  */
 @Composable
-fun ChatAppNavigation() {
+fun ChatAppClientNavigation() {
     // 1. ナビゲーションの状態を管理する「コントローラー」を作成
     val navController = rememberNavController()
 
@@ -54,13 +56,23 @@ fun ChatAppNavigation() {
     // 3. 画面遷移のホスト (NavHost) を設定
     NavHost(
         navController = navController,
-        startDestination = "login" // 最初に表示する画面
+        startDestination = NavRoutes.START.route    // 最初に表示する画面
     ) {
 
         // 4. 各画面のルートを定義 (中身を本物に入れ替え)
 
-        // 画面1: ログイン画面
-        composable(route = "login") {
+        // 起動時画面
+        composable(route = NavRoutes.START.route) {
+            ClientStartScreen(
+                onStartup = {
+                    // ユーザー名入力画面へ遷移
+                    navController.navigate(NavRoutes.LOGIN.route)
+                }
+            )
+        }
+
+        // ログイン画面
+        composable(route = NavRoutes.LOGIN.route) {
             ClientLoginScreen(
                 viewModel = chatViewModel, // ★ViewModelを渡す
                 onConnect = {
