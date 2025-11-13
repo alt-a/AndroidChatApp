@@ -1,13 +1,18 @@
-package com.example.chatappserver
+package com.example.chatappserver.data.websocket
 
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.install
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.pingPeriod
+import io.ktor.server.websocket.timeout
+import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.DefaultWebSocketSession
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.isActive
 import java.time.Duration
@@ -33,7 +38,7 @@ class MyWebsocketServer {
         }
 
         // WebSocketプラグインのインストール
-        install(WebSockets) {
+        install(WebSockets.Plugin) {
             pingPeriod = Duration.ofMinutes(1) // 1分ごとに生存確認
             timeout = Duration.ofSeconds(15)   // 15秒応答がなければタイムアウト
             maxFrameSize = Long.MAX_VALUE      // フレームサイズ制限なし

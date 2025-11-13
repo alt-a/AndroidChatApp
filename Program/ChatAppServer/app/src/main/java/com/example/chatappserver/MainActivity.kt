@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.chatappserver.data.websocket.MyWebsocketServer
 import com.example.chatappserver.navigation.ChatAppServerNavigation
 import kotlinx.coroutines.launch
 import java.net.Inet4Address
