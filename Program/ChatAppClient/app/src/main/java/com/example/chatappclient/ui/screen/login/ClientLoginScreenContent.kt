@@ -94,8 +94,7 @@ fun ClientLoginScreenContent(
             ElevatedButton(
                 onClick = {
                     // ボタンが押されたら...
-                    // 1. ViewModelのconnectメソッドを呼ぶ（だけにする）
-//                viewModel.connect(ip, name)
+                    // ViewModelのconnectメソッドを呼ぶ（だけにする）
                     onConnect(ip, name)
                 },
                 // ★接続中はボタンを押せなくする

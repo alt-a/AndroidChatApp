@@ -1,7 +1,7 @@
 package com.example.chatappclient.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.compose.viewModel   // ★ViewModelをComposeで使うために import
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,22 +15,21 @@ import com.example.chatappclient.ui.screen.start.ClientStartScreen
  */
 @Composable
 fun ChatAppClientNavigation() {
-    // 1. ナビゲーションの状態を管理する「コントローラー」を作成
+    // ナビゲーション状態管理コントローラ
     val navController = rememberNavController()
 
-    // 2. ★ViewModelのインスタンスを作成★
+    // ★ViewModelのインスタンスを作成★
     // viewModel() 関数が、Activityが生きている間ずっと
     // 同一の ChatViewModel インスタンスを保持してくれます。
     val chatViewModel: ChatViewModel = viewModel()
 
-    // 3. 画面遷移のホスト (NavHost) を設定
+    // 画面遷移ホスト
     NavHost(
         navController = navController,
         startDestination = NavRoutes.START.route    // 最初に表示する画面
     ) {
 
-        // 4. 各画面のルートを定義 (中身を本物に入れ替え)
-
+        // ----- ルート定義 -----
         // 起動時画面
         composable(route = NavRoutes.START.route) {
             ClientStartScreen(

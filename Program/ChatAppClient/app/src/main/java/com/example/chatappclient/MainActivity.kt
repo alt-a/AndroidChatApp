@@ -1,4 +1,4 @@
-package com.example.chatappclient // パッケージ名はご自身のものに合わせてください
+package com.example.chatappclient
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -31,5 +31,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-// --- 仮置きだったプレビュー関数は削除 ---
