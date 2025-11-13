@@ -35,12 +35,14 @@ import androidx.compose.ui.unit.dp
  * ユーザー名入力画面 ステートレスUIコンポーネント
  * @param uiState       : ViewModelが保持するUIデータ
  * @param onConnect     : サーバー接続関数
+ * @param onBack        : 戻るボタン押下時 画面遷移用コールバック
  */
 @OptIn(ExperimentalMaterial3Api::class) // ★TopAppBar用に必要
 @Composable
 fun ClientLoginScreenContent(
     uiState: ClientLoginScreenUIState,
-    onConnect: (ip: String, name: String) -> Unit
+    onConnect: (ip: String, name: String) -> Unit,
+    onBack: () -> Unit
 ) {
     // 画面内で使用する一時的な状態変数
     var ip by remember { mutableStateOf("192.168.11.17") } // IP入力用
@@ -52,7 +54,7 @@ fun ClientLoginScreenContent(
                 title = { Text(text = "ユーザー名設定") },
                 navigationIcon = {
                     IconButton(
-                        onClick = {}
+                        onClick = onBack    // 起動時画面に戻る
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -117,6 +119,7 @@ fun ClientLoginScreenContentPreview() {
         uiState = ClientLoginScreenUIState(),
         onConnect = { ip, name ->
             // 何もしない
-        }
+        },
+        onBack = {}
     )
 }

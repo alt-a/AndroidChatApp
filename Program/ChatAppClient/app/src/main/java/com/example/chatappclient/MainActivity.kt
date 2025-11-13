@@ -78,6 +78,10 @@ fun ChatAppClientNavigation() {
                 onConnect = {
                     // 接続ボタンが押されたら、チャット画面に遷移
                     navController.navigate("chat")
+                },
+                onBack = {
+                    // 起動時画面に戻る
+                    navController.popBackStack()
                 }
             )
         }

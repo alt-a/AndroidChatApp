@@ -8,13 +8,15 @@ import com.example.chatappclient.ChatViewModel
 
 /**
  * ユーザー名入力画面
- * @param viewModel 共有する ChatViewModel
- * @param onConnect 接続ボタンが押されたときのコールバック (画面遷移用)
+ * @param viewModel : 共有する ChatViewModel
+ * @param onConnect : 接続ボタンが押されたときのコールバック (画面遷移用)
+ * @param onBack    : 戻るボタン押下時 画面遷移用コールバック
  */
 @Composable
 fun ClientLoginScreen(
     viewModel: ChatViewModel,
-    onConnect: () -> Unit // "() -> Unit" は「引数なし、戻り値なしの関数」という意味
+    onConnect: () -> Unit,  // "() -> Unit" は「引数なし、戻り値なしの関数」という意味
+    onBack: () -> Unit
 ) {
     // ★ViewModelの接続状態を監視
     val connectionStatus by viewModel.connectionStatus.collectAsState()
@@ -37,6 +39,7 @@ fun ClientLoginScreen(
     // ステートレスUIコンポーネント
     ClientLoginScreenContent(
         uiState = uiState,
-        onConnect = viewModel::connect
+        onConnect = viewModel::connect,
+        onBack = onBack
     )
 }
