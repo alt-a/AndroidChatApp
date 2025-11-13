@@ -31,22 +31,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-
-/**
- * 送信先選択ダイアログ 個別送信チェック状態管理データクラス
- */
-data class SelectRecipientCheckState(
-    val id: Int,            // ユーザーID
-    val isChecked: Boolean  // チェック状態
-)
-
-/**
- * 接続中ユーザー情報データクラス（仮）
- */
-data class ConnectionUser(
-    val id: Int,
-    val name: String
-)
+import com.example.chatappclient.ConnectionUser
 
 // ----- 仮の送信先リスト -----
 val tempList = mutableListOf(
