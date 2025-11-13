@@ -71,13 +71,13 @@ fun ChatAppClientNavigation() {
             )
         }
 
-        // ログイン画面
+        // ユーザー名入力画面
         composable(route = NavRoutes.LOGIN.route) {
             ClientLoginScreen(
                 viewModel = chatViewModel, // ★ViewModelを渡す
                 onConnect = {
                     // 接続ボタンが押されたら、チャット画面に遷移
-                    navController.navigate("chat")
+                    navController.navigate(NavRoutes.CHAT.route)
                 },
                 onBack = {
                     // 起動時画面に戻る
@@ -86,8 +86,8 @@ fun ChatAppClientNavigation() {
             )
         }
 
-        // 画面2: チャット画面
-        composable(route = "chat") {
+        // チャット画面
+        composable(route = NavRoutes.CHAT.route) {
             ClientChatScreen(
                 viewModel = chatViewModel, // ★ログイン画面と【同じ】ViewModelを渡す
                 // ★「切断」時にログイン画面に戻るコールバックを渡す
