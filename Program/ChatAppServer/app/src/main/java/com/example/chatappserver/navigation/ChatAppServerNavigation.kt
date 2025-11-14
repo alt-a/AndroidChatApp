@@ -1,9 +1,11 @@
 package com.example.chatappserver.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.chatappserver.data.websocket.MyWebsocketServerManager
 import com.example.chatappserver.ui.screen.home.ServerHomeScreen
 import com.example.chatappserver.ui.screen.start.ServerStartScreen
 
@@ -15,6 +17,9 @@ fun ChatAppServerNavigation(text: String) {
     // ナビゲーション状態管理コントローラ
     val navController = rememberNavController()
 
+    // WebSocket処理 ViewModelインスタンス
+    val viewModel: MyWebsocketServerManager = viewModel()
+
     // 画面遷移ホスト
     NavHost(
         navController = navController,
@@ -25,6 +30,11 @@ fun ChatAppServerNavigation(text: String) {
         composable(route = NavRoutes.START.route) {
             ServerStartScreen(
                 onStartup = {
+                    // 「はじめる」ボタン押下時 サーバー起動
+                    if (viewModel.isServerRunning.value == false) {
+                        viewModel.startServer()
+                    }
+
                     // ホーム画面へ遷移
                     navController.navigate(NavRoutes.HOME.route)
                 }
@@ -36,6 +46,11 @@ fun ChatAppServerNavigation(text: String) {
             ServerHomeScreen(
                 ipAddress = text,
                 onStop = {
+                    // 確認アラート「OK」押下時 サーバー停止
+                    if (viewModel.isServerRunning.value == true) {
+                        viewModel.stopServer()
+                    }
+
                     // 起動時画面に戻る
                     navController.popBackStack()
                 }

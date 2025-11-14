@@ -12,17 +12,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.example.chatappserver.data.websocket.MyWebsocketServer
 import com.example.chatappserver.navigation.ChatAppServerNavigation
-import kotlinx.coroutines.launch
 import java.net.Inet4Address
-import kotlin.concurrent.thread
 
 class MainActivity : ComponentActivity() {
-    private var mWebSocketServer: MyWebsocketServer? = null
 
     // IPアドレスを保持するための状態(State)変数
     private val ipAddressState = mutableStateOf("Detecting IP...")
@@ -96,25 +89,6 @@ class MainActivity : ComponentActivity() {
                 ChatAppServerNavigation(ipAddressState.value)
             }
         }
-
-        // 3. バックグラウンドでサーバーを起動 (推奨される方法)
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                // このブロックは、ActivityがCREATED状態以上のときだけ実行され、
-                // STOPPED状態になると自動的にキャンセル（中断）されます。
-                mWebSocketServer = MyWebsocketServer()
-                thread { // Ktorのstart(wait=true)はスレッドをブロックするため、別スレッドで実行
-                    try {
-                        Log.i("MyWebsocketServer", "Server starting...")
-                        mWebSocketServer?.start()
-                        Log.i("MyWebsocketServer", "Server stopped.")
-                    } catch (e: Exception) {
-                        Log.e("MyWebsocketServer", "Server crashed", e)
-                    }
-                }
-            }
-            // (repeatOnLifecycleが終了したら、サーバーは自動的に停止処理に入る)
-        }
     }
 
     /** LinkPropertiesからIPアドレスを抽出し、Stateを更新する */
@@ -137,11 +111,5 @@ class MainActivity : ComponentActivity() {
         // ネットワーク監視を解除
         val manager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         manager.unregisterNetworkCallback(networkCallback)
-
-        // サーバーを終了
-        thread {
-            mWebSocketServer?.stop()
-            mWebSocketServer = null
-        }
     }
 }

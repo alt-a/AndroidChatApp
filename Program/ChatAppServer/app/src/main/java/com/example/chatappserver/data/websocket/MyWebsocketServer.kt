@@ -25,7 +25,7 @@ class MyWebsocketServer {
     // DefaultWebSocketSession は Ktor の WebSocket 接続そのものを表します
     // LinkedHashSetは重複のない接続順を保持したリスト
     // Collections.synchronizedSetはリストの追加削除を1つずつ実行するオブジェクト
-    private val connections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
+    val connections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
 
     // サーバー本体 (Nettyエンジン, ポート8080)
     // ※エコーサーバーの時は8000でしたが、今回は8080にしておきます (お好みで変更OK)
@@ -90,8 +90,11 @@ class MyWebsocketServer {
 
     /** サーバーを停止する */
     fun stop() {
-        // 猶予期間0秒、タイムアウト5秒で優雅に停止
-        netty.stop(0, 5000)
+        // 猶予期間3秒、タイムアウト10秒で優雅に停止
+        netty.stop(
+            gracePeriodMillis = 3000,   // 接続がクローズされるまで待機する猶予時間【最低3秒】
+            timeoutMillis = 10000       // 強制終了までの総タイムアウト
+        )
         connections.clear() // 念のためリストもクリア
     }
 }
