@@ -20,14 +20,15 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.chatappserver.data.websocket.MyWebsocketServerStatus
 
 /**
  * アプリ起動時画面 ステートレスUIコンポーネント
- * @param onStartup : 「はじめる」ボタン押下時 画面遷移用コールバック
+ * @param uiState   : ViewModelが保持するUIデータ
  */
 @Composable
 fun ServerStartScreenContent(
-    onStartup: () -> Unit
+    uiState: ServerStartScreenUIState
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
@@ -54,8 +55,10 @@ fun ServerStartScreenContent(
             Spacer(modifier = Modifier.Companion.height(48.dp))
             ElevatedButton(
                 onClick = {
-                    // ホーム画面へ遷移
-                    onStartup()
+                    // 「はじめる」ボタン押下時 サーバー起動
+                    if (uiState.isServerRunning == MyWebsocketServerStatus.DISCONNECTED) {
+                        uiState.onStartServer()
+                    }
                 },
                 modifier = Modifier.Companion.padding(),
                 shape = RoundedCornerShape(25),
@@ -66,7 +69,9 @@ fun ServerStartScreenContent(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                enabled = true
+                // "停止中"のみボタン有効化
+                // 起動処理を複数回行うこと・停止処理中に再度起動処理に入ってしまうことを防ぐ
+                enabled = (uiState.isServerRunning == MyWebsocketServerStatus.DISCONNECTED)
             ) {
                 Text(
                     text = "はじめる",
@@ -86,6 +91,8 @@ fun ServerStartScreenContent(
 @Composable
 fun ServerStartScreenContentPreview() {
     ServerStartScreenContent(
-        onStartup = {}
+        uiState = ServerStartScreenUIState(
+            onStartServer = {}
+        )
     )
 }

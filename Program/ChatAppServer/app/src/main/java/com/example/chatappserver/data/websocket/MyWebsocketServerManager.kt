@@ -25,8 +25,8 @@ class MyWebsocketServerManager : ViewModel() {
     private var mWebSocketServer: MyWebsocketServer? = null
 
     // サーバー起動状態取得用
-    private val _isServerRunning = MutableStateFlow(false)
-    val isServerRunning: StateFlow<Boolean> = _isServerRunning.asStateFlow()
+    private val _isServerRunning = MutableStateFlow(MyWebsocketServerStatus.DISCONNECTED)
+    val isServerRunning: StateFlow<MyWebsocketServerStatus> = _isServerRunning.asStateFlow()
 
     // 起動中のコルーチンジョブを保持するための変数
     private var serverJob: Job? = null
@@ -43,7 +43,8 @@ class MyWebsocketServerManager : ViewModel() {
 
         // サーバー起動処理（バックグラウンドスレッド）
         serverJob = viewModelScope.launch(Dispatchers.IO) {
-            _isServerRunning.value = true
+            // 状態更新（起動中）
+            _isServerRunning.value = MyWebsocketServerStatus.CONNECTED
 
             try {
                 // 起動
@@ -58,7 +59,9 @@ class MyWebsocketServerManager : ViewModel() {
             } finally {
                 // 停止
                 mWebSocketServer = null
-                _isServerRunning.value = false
+
+                // 状態更新（停止中）
+                _isServerRunning.value = MyWebsocketServerStatus.DISCONNECTED
             }
         }
     }
@@ -72,6 +75,8 @@ class MyWebsocketServerManager : ViewModel() {
         if (server != null) {
             // サーバー停止処理（バックグラウンドスレッド）
             viewModelScope.launch(Dispatchers.IO) {
+                // 状態更新（停止処理中）
+                _isServerRunning.value = MyWebsocketServerStatus.CLOSING
 
                 // サーバーシャットダウン処理が中断されないことを保証
                 withContext(NonCancellable) {
@@ -112,6 +117,8 @@ class MyWebsocketServerManager : ViewModel() {
                         serverJob?.cancelAndJoin()  // 確実に終了するのを待つ
                         serverJob = null
 
+                        // 状態更新（停止中）
+                        _isServerRunning.value = MyWebsocketServerStatus.DISCONNECTED
                         Log.i("MyWebsocketServer", "Server shutdown.")
                     }
                 }
