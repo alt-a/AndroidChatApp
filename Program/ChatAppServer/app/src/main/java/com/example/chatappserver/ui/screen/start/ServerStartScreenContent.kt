@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -49,21 +52,28 @@ fun ServerStartScreenContent(
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.Companion.height(48.dp))
-            ExtendedFloatingActionButton(
+            ElevatedButton(
                 onClick = {
                     // ホーム画面へ遷移
                     onStartup()
                 },
                 modifier = Modifier.Companion.padding(),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                shape = RoundedCornerShape(25),
+                elevation = ButtonDefaults.elevatedButtonElevation(
+                    defaultElevation = 6.dp
+                ),
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                enabled = true
             ) {
                 Text(
                     text = "はじめる",
                     fontSize = 22.sp,
                     modifier = Modifier.Companion.padding(
-                        vertical = 16.dp,
-                        horizontal = 28.dp
+                        vertical = 8.dp,
+                        horizontal = 25.dp
                     ),
                     color = MaterialTheme.colorScheme.onPrimary
                 )
