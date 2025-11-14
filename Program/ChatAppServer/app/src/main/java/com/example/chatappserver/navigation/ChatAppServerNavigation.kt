@@ -29,6 +29,7 @@ fun ChatAppServerNavigation(text: String) {
         // 起動時画面
         composable(route = NavRoutes.START.route) {
             ServerStartScreen(
+                viewModel = viewModel,  // ViewModel共有
                 onStartup = {
                     // 「はじめる」ボタン押下時 サーバー起動
                     if (viewModel.isServerRunning.value == false) {
