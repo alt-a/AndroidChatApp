@@ -4,16 +4,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.example.chatappclient.ChatViewModel
+import com.example.chatappclient.data.websocket.MyWebsocketClient
 
 /**
  * チャット画面
- * @param viewModel     : 共有する ChatViewModel
+ * @param viewModel     : 共有する ViewModel
  * @param onDisconnect  : 切断時に呼び出されるコールバック (画面遷移用)
  */
 @Composable
 fun ClientChatScreen(
-    viewModel: ChatViewModel,
+    viewModel: MyWebsocketClient,
     onDisconnect: () -> Unit // ★コールバックを受け取る
 ) {
     // ViewModelが保持しているメッセージリストを監視

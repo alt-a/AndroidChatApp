@@ -4,17 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.example.chatappclient.ChatViewModel
+import com.example.chatappclient.data.websocket.MyWebsocketClient
 
 /**
  * ユーザー名入力画面
- * @param viewModel : 共有する ChatViewModel
+ * @param viewModel : 共有する ViewModel
  * @param onConnect : 接続ボタンが押されたときのコールバック (画面遷移用)
  * @param onBack    : 戻るボタン押下時 画面遷移用コールバック
  */
 @Composable
 fun ClientLoginScreen(
-    viewModel: ChatViewModel,
+    viewModel: MyWebsocketClient,
     onConnect: () -> Unit,  // "() -> Unit" は「引数なし、戻り値なしの関数」という意味
     onBack: () -> Unit
 ) {

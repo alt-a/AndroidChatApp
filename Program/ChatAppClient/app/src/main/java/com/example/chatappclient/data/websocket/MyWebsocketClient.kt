@@ -1,5 +1,6 @@
-package com.example.chatappclient
+package com.example.chatappclient.data.websocket
 
+import com.example.chatappclient.ChatMessage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,7 +19,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-class ChatViewModel : ViewModel() {
+class MyWebsocketClient : ViewModel() {
 
     // KtorのWebSocketクライアント
     private val client = HttpClient(OkHttp) {
@@ -67,7 +68,7 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 // ▼▼▼ ログ追加 ① (接続試行) ▼▼▼
-                Log.d("ChatViewModel", "Attempting to connect to ws://$ip:8080/ ...")
+                Log.d("MyWebsocketClient", "Attempting to connect to ws://$ip:8080/ ...")
                 // ▲▲▲ ここまで ▲▲▲
                 _connectionStatus.value = "Connecting..."
 
@@ -80,7 +81,7 @@ class ChatViewModel : ViewModel() {
                 _connectionStatus.value = "Connected"
 
                 // ▼▼▼ ログ追加 ② (接続成功) ▼▼▼
-                Log.d("ChatViewModel", "Success Connection!")
+                Log.d("MyWebsocketClient", "Success Connection!")
                 // ▲▲▲ ここまで ▲▲▲
 
                 // ★メッセージ受信ループ (接続が切れるまでここで待ち続ける)
@@ -91,7 +92,7 @@ class ChatViewModel : ViewModel() {
                 _connectionStatus.value = "Error: ${e.message}"
 
                 // ▼▼▼ ログ追加 ② (失敗原因) ▼▼▼
-                Log.e("ChatViewModel", "Connection failed!", e)
+                Log.e("MyWebsocketClient", "Connection failed!", e)
                 // ▲▲▲ ここまで ▲▲▲
 
                 webSocketSession = null // セッションをクリア
@@ -110,13 +111,13 @@ class ChatViewModel : ViewModel() {
                     val receivedText = frame.readText()
 
                     // ★デバッグログ（前回仕込んだもの）
-                    Log.d("ChatViewModel", "Received raw: $receivedText")
+                    Log.d("MyWebsocketClient", "Received raw: $receivedText")
 
                     // 受け取ったJSON文字列を ChatMessage オブジェクトに変換
                     val chatMessage = Json.decodeFromString<ChatMessage>(receivedText)
 
                     // ★デバッグログ（前回仕込んだもの）
-                    Log.d("ChatViewModel", "Decoded: $chatMessage")
+                    Log.d("MyWebsocketClient", "Decoded: $chatMessage")
 
                     // メッセージリストの「末尾」に新しいメッセージを追加
                     // (UIが更新される)
@@ -126,12 +127,12 @@ class ChatViewModel : ViewModel() {
 
             // ----- Close ハンドシェイク -----
             // Closeフレームを受信するとincomingループを抜けここに到達する
-            Log.d("ChatViewModel", "Close WebSocket Session")
+            Log.d("MyWebsocketClient", "Close WebSocket Session")
             _connectionStatus.value = "Disconnected"
 
         } catch (e: Exception) {
             // ▼▼▼ ここにログを追加 ▼▼▼
-            Log.e("ChatViewModel", "Error in listenForMessages!", e)
+            Log.e("MyWebsocketClient", "Error in listenForMessages!", e)
             // ▲▲▲ ここまで ▲▲▲
 
             // 受信中にエラー (切断など)
@@ -158,7 +159,7 @@ class ChatViewModel : ViewModel() {
         // _messages.value = _messages.value + myMessage
 
         // ★デバッグログ（前回仕込んだもの）
-        Log.d("ChatViewModel", "Sending: $myMessage")
+        Log.d("MyWebsocketClient", "Sending: $myMessage")
 
         // メッセージをサーバーに送信
         viewModelScope.launch {
@@ -167,7 +168,7 @@ class ChatViewModel : ViewModel() {
                 webSocketSession?.sendSerialized(myMessage)
             } catch (e: Exception) {
                 // ▼▼▼ ここにログを追加 ▼▼▼
-                Log.e("ChatViewModel", "Error in sendMessage!", e)
+                Log.e("MyWebsocketClient", "Error in sendMessage!", e)
                 // ▲▲▲ ここまで ▲▲▲
 
                 // 送信失敗
@@ -185,7 +186,7 @@ class ChatViewModel : ViewModel() {
             try {
                 webSocketSession?.close(CloseReason(CloseReason.Codes.NORMAL, "User disconnected"))
             } catch (e: Exception) {
-                Log.e("ChatViewModel", "Error during disconnect", e)
+                Log.e("MyWebsocketClient", "Error during disconnect", e)
             } finally {
                 webSocketSession = null
                 _connectionStatus.value = "Disconnected"
