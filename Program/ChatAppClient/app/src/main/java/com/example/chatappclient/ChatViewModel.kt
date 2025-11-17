@@ -123,6 +123,12 @@ class ChatViewModel : ViewModel() {
                     _messages.value = _messages.value + chatMessage
                 }
             }
+
+            // ----- Close ハンドシェイク -----
+            // Closeフレームを受信するとincomingループを抜けここに到達する
+            Log.d("ChatViewModel", "Close WebSocket Session")
+            _connectionStatus.value = "Disconnected"
+
         } catch (e: Exception) {
             // ▼▼▼ ここにログを追加 ▼▼▼
             Log.e("ChatViewModel", "Error in listenForMessages!", e)
