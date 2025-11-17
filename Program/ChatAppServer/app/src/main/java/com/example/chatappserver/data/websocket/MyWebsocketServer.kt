@@ -1,13 +1,18 @@
-package com.example.chatappserver
+package com.example.chatappserver.data.websocket
 
-import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.routing.*
-import io.ktor.server.websocket.*
-import io.ktor.websocket.*
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.install
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.routing.routing
+import io.ktor.server.websocket.WebSockets
+import io.ktor.server.websocket.pingPeriod
+import io.ktor.server.websocket.timeout
+import io.ktor.server.websocket.webSocket
+import io.ktor.websocket.DefaultWebSocketSession
+import io.ktor.websocket.Frame
+import io.ktor.websocket.readText
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.isActive
 import java.time.Duration
@@ -20,7 +25,7 @@ class MyWebsocketServer {
     // DefaultWebSocketSession は Ktor の WebSocket 接続そのものを表します
     // LinkedHashSetは重複のない接続順を保持したリスト
     // Collections.synchronizedSetはリストの追加削除を1つずつ実行するオブジェクト
-    private val connections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
+    val connections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
 
     // サーバー本体 (Nettyエンジン, ポート8080)
     // ※エコーサーバーの時は8000でしたが、今回は8080にしておきます (お好みで変更OK)
@@ -33,7 +38,7 @@ class MyWebsocketServer {
         }
 
         // WebSocketプラグインのインストール
-        install(WebSockets) {
+        install(WebSockets.Plugin) {
             pingPeriod = Duration.ofMinutes(1) // 1分ごとに生存確認
             timeout = Duration.ofSeconds(15)   // 15秒応答がなければタイムアウト
             maxFrameSize = Long.MAX_VALUE      // フレームサイズ制限なし
@@ -85,8 +90,11 @@ class MyWebsocketServer {
 
     /** サーバーを停止する */
     fun stop() {
-        // 猶予期間0秒、タイムアウト5秒で優雅に停止
-        netty.stop(0, 5000)
+        // 猶予期間3秒、タイムアウト10秒で優雅に停止
+        netty.stop(
+            gracePeriodMillis = 3000,   // 接続がクローズされるまで待機する猶予時間【最低3秒】
+            timeoutMillis = 10000       // 強制終了までの総タイムアウト
+        )
         connections.clear() // 念のためリストもクリア
     }
 }
