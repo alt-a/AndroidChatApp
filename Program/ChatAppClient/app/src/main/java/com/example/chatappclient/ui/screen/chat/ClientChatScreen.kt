@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.chatappclient.data.websocket.MyWebsocketClient
+import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
 /**
  * チャット画面
@@ -35,7 +36,7 @@ fun ClientChatScreen(
 
     // --- 接続が切れたら自動で戻る ---
     LaunchedEffect(connectionStatus) {
-        if (connectionStatus != "Connected" && connectionStatus != "Connecting...") {
+        if (connectionStatus != MyWebsocketClientStatus.CONNECTED && connectionStatus != MyWebsocketClientStatus.CONNECTING) {
             // 接続状態が "Connected" 以外 (Error, Disconnected など) になったら
             // 起動時画面に戻る
             onDisconnect()

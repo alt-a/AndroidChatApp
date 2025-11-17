@@ -40,7 +40,7 @@ class MyWebsocketClient : ViewModel() {
     private var webSocketSession: DefaultClientWebSocketSession? = null
 
     // 接続状態を管理する (UIに "接続中..." などを表示するため)
-    private val _connectionStatus = MutableStateFlow("Disconnected")
+    private val _connectionStatus = MutableStateFlow(MyWebsocketClientStatus.DISCONNECTED)
     val connectionStatus = _connectionStatus.asStateFlow()
 
     // ユーザー名を管理する
@@ -70,7 +70,7 @@ class MyWebsocketClient : ViewModel() {
                 // ▼▼▼ ログ追加 ① (接続試行) ▼▼▼
                 Log.d("MyWebsocketClient", "Attempting to connect to ws://$ip:8080/ ...")
                 // ▲▲▲ ここまで ▲▲▲
-                _connectionStatus.value = "Connecting..."
+                _connectionStatus.value = MyWebsocketClientStatus.CONNECTING
 
                 // サーバーに接続
                 webSocketSession = client.webSocketSession {
@@ -78,7 +78,7 @@ class MyWebsocketClient : ViewModel() {
                 }
 
                 // 接続成功
-                _connectionStatus.value = "Connected"
+                _connectionStatus.value = MyWebsocketClientStatus.CONNECTED
 
                 // ▼▼▼ ログ追加 ② (接続成功) ▼▼▼
                 Log.d("MyWebsocketClient", "Success Connection!")
@@ -89,7 +89,7 @@ class MyWebsocketClient : ViewModel() {
 
             } catch (e: Exception) {
                 // 接続失敗
-                _connectionStatus.value = "Error: ${e.message}"
+                _connectionStatus.value = MyWebsocketClientStatus.ERROR//"Error: ${e.message}"
 
                 // ▼▼▼ ログ追加 ② (失敗原因) ▼▼▼
                 Log.e("MyWebsocketClient", "Connection failed!", e)
@@ -128,7 +128,7 @@ class MyWebsocketClient : ViewModel() {
             // ----- Close ハンドシェイク -----
             // Closeフレームを受信するとincomingループを抜けここに到達する
             Log.d("MyWebsocketClient", "Close WebSocket Session")
-            _connectionStatus.value = "Disconnected"
+            _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED
 
         } catch (e: Exception) {
             // ▼▼▼ ここにログを追加 ▼▼▼
@@ -136,7 +136,7 @@ class MyWebsocketClient : ViewModel() {
             // ▲▲▲ ここまで ▲▲▲
 
             // 受信中にエラー (切断など)
-            _connectionStatus.value = "Disconnected (Error)"
+            _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED_ERROR
             webSocketSession = null
         }
     }
@@ -172,7 +172,7 @@ class MyWebsocketClient : ViewModel() {
                 // ▲▲▲ ここまで ▲▲▲
 
                 // 送信失敗
-                _connectionStatus.value = "Send Error: ${e.message}"
+                _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR//"Send Error: ${e.message}"
             }
         }
     }
@@ -189,7 +189,7 @@ class MyWebsocketClient : ViewModel() {
                 Log.e("MyWebsocketClient", "Error during disconnect", e)
             } finally {
                 webSocketSession = null
-                _connectionStatus.value = "Disconnected"
+                _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED
                 _messages.value = emptyList() // チャット履歴をクリア
             }
         }

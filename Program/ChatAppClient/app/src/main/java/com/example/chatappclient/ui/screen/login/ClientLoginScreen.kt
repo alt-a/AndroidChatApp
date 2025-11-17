@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.chatappclient.data.websocket.MyWebsocketClient
+import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
 /**
  * ユーザー名入力画面
@@ -28,7 +29,7 @@ fun ClientLoginScreen(
 
     // ★接続状態(connectionStatus) が変化したら実行
     LaunchedEffect(connectionStatus) {
-        if (connectionStatus == "Connected") {
+        if (connectionStatus == MyWebsocketClientStatus.CONNECTED) {
             // 接続成功時のみ、画面遷移コールバックを呼ぶ
             onConnect()
         }

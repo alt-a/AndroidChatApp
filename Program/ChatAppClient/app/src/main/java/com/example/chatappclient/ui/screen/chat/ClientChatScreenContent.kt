@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 import com.example.chatappclient.ui.component.ChatBubble
 import com.example.chatappclient.ui.component.EndChatConfirmAlert
 
@@ -77,7 +78,7 @@ fun ClientChatScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "チャット (${uiState.connectionStatus})") }, // 接続状態を表示
+                title = { Text(text = "チャット (${uiState.connectionStatus.text})") }, // 接続状態を表示
                 navigationIcon = {  // 戻るボタン
                     IconButton(onClick = {
                         showAlert.value = true  // チャット終了確認アラート表示
@@ -126,7 +127,7 @@ fun ClientChatScreenContent(
                             onSendMessageButtonClick(messageText)
                             messageText = ""
                         },
-                        enabled = messageText.isNotBlank() && uiState.connectionStatus == "Connected",
+                        enabled = messageText.isNotBlank() && uiState.connectionStatus == MyWebsocketClientStatus.CONNECTED,
                         colors = IconButtonDefaults.iconButtonColors(
                             contentColor = MaterialTheme.colorScheme.primary
                         )

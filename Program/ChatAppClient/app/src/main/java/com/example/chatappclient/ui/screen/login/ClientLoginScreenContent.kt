@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
 /**
  * ユーザー名入力画面 ステートレスUIコンポーネント
@@ -98,14 +99,14 @@ fun ClientLoginScreenContent(
                     onConnect(ip, name)
                 },
                 // ★接続中はボタンを押せなくする
-                enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != "Connecting..."),
+                enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 // ★接続状態に応じてボタンの文字を変える
-                Text(text = if (uiState.connectionStatus == "Connecting...") "接続中..." else "OK")
+                Text(text = if (uiState.connectionStatus == MyWebsocketClientStatus.CONNECTING) "接続中..." else "OK")
             }
         }
     }
