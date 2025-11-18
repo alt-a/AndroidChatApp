@@ -41,6 +41,7 @@ fun ChatAppServerNavigation(text: String) {
         // ホーム画面
         composable(route = NavRoutes.HOME.route) {
             ServerHomeScreen(
+                viewModel = viewModel,
                 ipAddress = text,
                 onStop = {
                     // 確認アラート「OK」押下時 サーバー停止
