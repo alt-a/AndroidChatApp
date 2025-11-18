@@ -27,10 +27,15 @@ import androidx.compose.ui.unit.dp
 import com.example.chatappserver.ui.component.ConnectionUserCard
 import com.example.chatappserver.ui.component.StopServerConfirmAlert
 
+/**
+ * ホーム画面 ステートレスUIコンポーネント
+ * @param uiState   : ViewModelが保持するUIデータ
+ * @param onStop    : 画面遷移用コールバック
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerHomeScreenContent(
-    ipAddress: String,
+    uiState: ServerHomeScreenUIState,
     onStop: () -> Unit
 ) {
     // リストスクロール状態管理
@@ -74,7 +79,12 @@ fun ServerHomeScreenContent(
             horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
             // ユーザー情報表示
-            ConnectionUserCard(ipAddress)
+            uiState.connectionUserList.forEach { user ->
+                ConnectionUserCard(
+                    id = user.id.toString(),
+                    name = user.name
+                )
+            }
         }
     }
 
@@ -94,7 +104,7 @@ fun ServerHomeScreenContent(
 @Composable
 fun ServerHomeScreenContentPreview() {
     ServerHomeScreenContent(
-        ipAddress = "000.000.000.0",
+        uiState = ServerHomeScreenUIState(),
         onStop = {}
     )
 }

@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,18 +32,25 @@ import com.example.chatappserver.ui.component.StopServerConfirmAlert
 
 /**
  * ホーム画面
- * @param ipAddress : IPアドレステキスト
+ * @param viewModel : 共有するViewModel
  * @param onStop    : 画面遷移用コールバック
  */
 @Composable
 fun ServerHomeScreen(
     viewModel: MyWebsocketServerManager,
-    ipAddress: String,
     onStop: () -> Unit
 ) {
+    // ViewModelが保持している接続中ユーザーリストの監視
+    val connectionUserList by viewModel.connectionUserList.collectAsState()
+
+    // ステートレスUIコンポーネントにViewModelデータを渡すための準備
+    val uiState = ServerHomeScreenUIState(
+        connectionUserList = connectionUserList
+    )
+
     // ステートレスUIコンポーネント
     ServerHomeScreenContent(
-        ipAddress = ipAddress,
+        uiState = uiState,
         onStop = onStop
     )
 }

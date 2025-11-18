@@ -42,7 +42,6 @@ fun ChatAppServerNavigation(text: String) {
         composable(route = NavRoutes.HOME.route) {
             ServerHomeScreen(
                 viewModel = viewModel,
-                ipAddress = text,
                 onStop = {
                     // 確認アラート「OK」押下時 サーバー停止
                     if (viewModel.isServerRunning.value == MyWebsocketServerStatus.CONNECTED) {
