@@ -16,9 +16,11 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 接続中ユーザー情報表示Card
+ * @param id    : ユーザーID
+ * @param name  : ユーザー名
  */
 @Composable
-fun ConnectionUserCard(text: String) {
+fun ConnectionUserCard(id: String, name: String) {
     Card(
         modifier = Modifier.Companion.padding(vertical = 2.dp).fillMaxWidth()
     ) {
@@ -27,19 +29,18 @@ fun ConnectionUserCard(text: String) {
         ) {
             Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 Text(
-                    text = "IPアドレス：",
+                    text = "ユーザーID：",
                     fontWeight = FontWeight.Companion.Bold
                 )
-                Text(text = text)
+                Text(text = id)
             }
             Spacer(modifier = Modifier.Companion.height(4.dp))
             Row(verticalAlignment = Alignment.Companion.CenterVertically) {
                 Text(
-                    text = "PORT：",
+                    text = "ユーザー名：",
                     fontWeight = FontWeight.Companion.Bold
                 )
-                // ポート番号を 8080 に変更
-                Text(text = "8080")
+                Text(text = name)
             }
         }
     }

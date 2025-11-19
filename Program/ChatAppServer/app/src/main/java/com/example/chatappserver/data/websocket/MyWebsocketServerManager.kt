@@ -3,6 +3,7 @@ package com.example.chatappserver.data.websocket
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatappserver.data.model.ConnectionUser
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.close
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +31,10 @@ class MyWebsocketServerManager : ViewModel() {
 
     // 起動中のコルーチンジョブを保持するための変数
     private var serverJob: Job? = null
+
+    // 接続中ユーザーリスト監視
+    private val _connectionUserList = MutableStateFlow(listOf<ConnectionUser>())
+    val connectionUserList: StateFlow<List<ConnectionUser>> = _connectionUserList.asStateFlow()
 
     /**
      * WebSocketサーバー起動関数
@@ -64,6 +69,13 @@ class MyWebsocketServerManager : ViewModel() {
                 _isServerRunning.value = MyWebsocketServerStatus.DISCONNECTED
             }
         }
+
+        // 接続中ユーザーリスト監視を開始（サーバーとは別スレッド）
+        viewModelScope.launch(Dispatchers.IO) {
+            mWebSocketServer?.userList?.collect { newList ->
+                _connectionUserList.value = newList
+            }
+        }
     }
 
     /**
@@ -83,12 +95,12 @@ class MyWebsocketServerManager : ViewModel() {
 
                     try {
                         // 接続中の全クライアントへ切断を通知 明示的にセッションクローズ
-                        val closeJobs = server.connections.map { session ->
+                        val closeJobs = server.connections.value.map { session ->
                             async { // 並列実行
                                 try {
                                     withTimeout(500) {
                                         // WebSocketクローズフレーム送信
-                                        session.close(CloseReason(CloseReason.Codes.GOING_AWAY, "Server is shutting down."))
+                                        session.session.close(CloseReason(CloseReason.Codes.GOING_AWAY, "Server is shutting down."))
                                     }
 
                                 } catch (e: Exception) {
