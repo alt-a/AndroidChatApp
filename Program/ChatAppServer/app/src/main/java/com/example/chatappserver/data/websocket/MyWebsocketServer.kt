@@ -160,7 +160,7 @@ class MyWebsocketServer {
         } finally {
             // 4. 接続が切れたら (try-finally)、必ず管理リストから削除
             println("Connection closed. Removing session: ${targetSession.session}")
-            val rmSession = removeSession(targetSession.session)
+            val rmSession = removeSession(targetSession.id)
 
             // 接続中ユーザーリスト更新
             if (rmSession != null) {
@@ -209,14 +209,14 @@ class MyWebsocketServer {
     /**
      * WebSocketセッションをリストから削除
      * （mutexによりリスト操作の競合防止）
-     * @param session   : 削除したいWebSocketセッション
-     * @return          : 削除対象セッション＆ID
+     * @param id    : 削除したいWebSocketセッションのユーザーID
+     * @return      : 削除対象セッション＆ID
      */
-    private suspend fun removeSession(session: DefaultWebSocketSession): IdentifiedSession? {
+    private suspend fun removeSession(id: Int): IdentifiedSession? {
         mutex.withLock {
             // 現在のセッションリストから削除対象を抽出
             val currentSet = _connections.value
-            val sessionToRemoveData = currentSet.find { it.session == session }
+            val sessionToRemoveData = currentSet.find { it.id == id }
 
             // セッションリストから削除
             if (sessionToRemoveData != null) {
