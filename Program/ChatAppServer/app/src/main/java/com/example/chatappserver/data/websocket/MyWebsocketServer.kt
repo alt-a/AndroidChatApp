@@ -115,8 +115,8 @@ class MyWebsocketServer {
                             println("Receive username!")
 
                             // 接続中ユーザーリスト更新
-                            // リストに存在していないとき追加する
-                            val searchUser = _userList.value.filter { it.name == clientMessage.name }
+                            // 同一IDが存在していないことを確認して追加する
+                            val searchUser = _userList.value.filter { it.id == targetSession.id }
                             if (searchUser.isEmpty()) {
                                 val updatedList = _userList.value.toMutableList().apply {
                                     val newUser = ConnectionUser(
