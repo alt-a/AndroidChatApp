@@ -1,4 +1,4 @@
-package com.example.chatappclient
+package com.example.chatappclient.data.model
 
 import kotlinx.serialization.Serializable
 

@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.example.chatappclient.ConnectionUser
+import com.example.chatappclient.data.model.ConnectionUser
 
 // ----- 仮の送信先リスト -----
 val tempList = mutableListOf(

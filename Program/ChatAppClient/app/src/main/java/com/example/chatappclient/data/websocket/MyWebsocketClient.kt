@@ -1,6 +1,6 @@
 package com.example.chatappclient.data.websocket
 
-import com.example.chatappclient.ChatMessage
+import com.example.chatappclient.data.model.ChatMessage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
