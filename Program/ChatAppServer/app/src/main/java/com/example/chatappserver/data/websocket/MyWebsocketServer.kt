@@ -1,7 +1,10 @@
 package com.example.chatappserver.data.websocket
 
 import com.example.chatappserver.data.model.ConnectionUser
+import com.example.chatappserver.data.model.FrameID
 import com.example.chatappserver.data.model.MessageBroadcast
+import com.example.chatappserver.data.model.UserID
+import com.example.chatappserver.data.model.UserName
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
@@ -51,9 +54,12 @@ class MyWebsocketServer {
     private val netty = embeddedServer(Netty, port = 8080) {
 
         // JSONプラグインのインストール
-        // 今は必要ないが、サーバー側でJSON読むなら要る
         install(ContentNegotiation) {
-            json() // kotlinx.serialization を使う設定
+            // kotlinx.serialization を使う設定
+            json(Json {
+                ignoreUnknownKeys = true        // JSONに未知のキーがあっても無視
+                classDiscriminator = "content"  // 識別子キー
+            })
         }
 
         // WebSocketプラグインのインストール
@@ -80,28 +86,52 @@ class MyWebsocketServer {
                             println("Received: $receivedText. Broadcasting to ${connections.value.size} clients...")
 
                             // JSON解析
-                            val chatMessage = Json.decodeFromString<MessageBroadcast>(receivedText)
+                            val clientMessage: FrameID = Json.decodeFromString(receivedText)
 
-                            // 接続中ユーザーリスト更新
-                            // リストに存在していないとき追加する
-                            val searchUser = _userList.value.filter { it.name == chatMessage.user }
-                            if (searchUser.isEmpty()) {
-                                val updatedList = _userList.value.toMutableList().apply {
-                                    val newUser = ConnectionUser(
-                                        id = newSession.id,
-                                        name = chatMessage.user
-                                    )
-                                    add(newUser)
+                            // 受信フレームの内容により処理を分岐
+                            when (clientMessage) {
+                                // ----- ユーザーID（受信しない） -----
+                                is UserID -> {}
+
+                                // ----- ユーザー名 -----
+                                is UserName -> {
+                                    println("Receive username!")
+
+                                    // 接続中ユーザーリスト更新
+                                    // リストに存在していないとき追加する
+                                    val searchUser = _userList.value.filter { it.name == clientMessage.name }
+                                    if (searchUser.isEmpty()) {
+                                        val updatedList = _userList.value.toMutableList().apply {
+                                            val newUser = ConnectionUser(
+                                                id = newSession.id,
+                                                name = clientMessage.name
+                                            )
+                                            add(newUser)
+                                        }
+                                        _userList.value = updatedList
+                                    }
+
+                                    // クライアントにユーザーIDを通知
+                                    if (newSession.session.isActive) {
+                                        // 送信データ作成（フレーム識別子付きJSON文字列）
+                                        val id = UserID(id = newSession.id)
+                                        val jsonString = Json.encodeToString(FrameID.serializer(), id)
+
+                                        // ユーザーIDフレームをクライアントへ送信
+                                        this.send(Frame.Text(jsonString))
+                                    }
                                 }
-                                _userList.value = updatedList
-                            }
 
-                            // 3. 接続している全員にメッセージを中継 (ブロードキャスト)
-                            connections.value.forEach { session ->
-                                // 念のため、セッションがアクティブか確認
-                                if (session.session.isActive) {
-                                    // 送られてきたテキスト(JSON文字列)をそのまま送る
-                                    session.session.send(Frame.Text(receivedText))
+                                // ----- ブロードキャストメッセージ -----
+                                is MessageBroadcast -> {
+                                    // 3. 接続している全員にメッセージを中継 (ブロードキャスト)
+                                    connections.value.forEach { session ->
+                                        // 念のため、セッションがアクティブか確認
+                                        if (session.session.isActive) {
+                                            // 送られてきたテキスト(JSON文字列)をそのまま送る
+                                            session.session.send(Frame.Text(receivedText))
+                                        }
+                                    }
                                 }
                             }
                         }

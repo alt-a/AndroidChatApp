@@ -30,6 +30,9 @@ fun ClientLoginScreen(
     // ★接続状態(connectionStatus) が変化したら実行
     LaunchedEffect(connectionStatus) {
         if (connectionStatus == MyWebsocketClientStatus.CONNECTED) {
+            // サーバーに自分のユーザー名を通知する
+            viewModel.sendUserName()
+
             // 接続成功時のみ、画面遷移コールバックを呼ぶ
             onConnect()
         }

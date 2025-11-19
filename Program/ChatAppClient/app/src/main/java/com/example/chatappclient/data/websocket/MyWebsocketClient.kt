@@ -4,6 +4,9 @@ import com.example.chatappclient.data.model.ChatMessage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatappclient.data.model.FrameID
+import com.example.chatappclient.data.model.UserID
+import com.example.chatappclient.data.model.UserName
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.*
@@ -26,7 +29,8 @@ class MyWebsocketClient : ViewModel() {
         // JSONプラグインのインストール
         install(ContentNegotiation) {
             json(Json {
-                ignoreUnknownKeys = true // JSONに未知のキーがあっても無視
+                ignoreUnknownKeys = true        // JSONに未知のキーがあっても無視
+                classDiscriminator = "content"  // 識別子キー
             })
         }
         // WebSocketプラグインのインストール
@@ -113,15 +117,29 @@ class MyWebsocketClient : ViewModel() {
                     // ★デバッグログ（前回仕込んだもの）
                     Log.d("MyWebsocketClient", "Received raw: $receivedText")
 
-                    // 受け取ったJSON文字列を ChatMessage オブジェクトに変換
-                    val chatMessage = Json.decodeFromString<ChatMessage>(receivedText)
+                    // 受け取ったJSON文字列を FrameID オブジェクトに変換
+                    val serverMessage: FrameID = Json.decodeFromString(receivedText)
 
                     // ★デバッグログ（前回仕込んだもの）
-                    Log.d("MyWebsocketClient", "Decoded: $chatMessage")
+                    Log.d("MyWebsocketClient", "Decoded: $serverMessage")
 
-                    // メッセージリストの「末尾」に新しいメッセージを追加
-                    // (UIが更新される)
-                    _messages.value = _messages.value + chatMessage
+                    // 受信フレームの内容により処理を分岐
+                    when (serverMessage) {
+                        // ----- ユーザーID -----
+                        is UserID -> {
+                            Log.d("MyWebsocketClient", "Receive UserID: ${serverMessage.id}")
+                        }
+
+                        // ----- ユーザー名（受信しない） -----
+                        is UserName -> {}
+
+                        // ----- ブロードキャストメッセージ -----
+                        is ChatMessage -> {
+                            // メッセージリストの「末尾」に新しいメッセージを追加
+                            // (UIが更新される)
+                            _messages.value = _messages.value + serverMessage
+                        }
+                    }
                 }
             }
 
@@ -141,6 +159,33 @@ class MyWebsocketClient : ViewModel() {
         }
     }
 
+    /**
+     * サーバーにユーザー名を送信する
+     */
+    fun sendUserName() {
+        // 未接続なら何もしない
+        if (webSocketSession == null || !webSocketSession!!.isActive) return
+
+        Log.d("MyWebsocketClient", "Attempt to send username.")
+
+        // 送信データ作成（フレーム識別子付きJSON文字列）
+        val name = UserName(name = _userName.value)
+        val jsonString = Json.encodeToString(FrameID.serializer(), name)
+
+        viewModelScope.launch {
+            try {
+                // ユーザー名フレームをサーバーへ送信
+                Log.d("MyWebsocketClient", "Submit your username.")
+                webSocketSession?.send(Frame.Text(jsonString))
+
+            } catch (e: Exception) {
+                Log.e("MyWebsocketClient", "Error in sendUserName!", e)
+
+                // 送信失敗
+                _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
+            }
+        }
+    }
 
     /**
      * サーバーにメッセージを送信する
@@ -155,17 +200,19 @@ class MyWebsocketClient : ViewModel() {
             user = _userName.value, // 自分の名前
             message = messageText
         )
-        // ローカル分の表示
-        // _messages.value = _messages.value + myMessage
+
+        // メッセージをJSON文字列に変換（フレーム識別子付き）
+        val jsonString = Json.encodeToString(FrameID.serializer(), myMessage)
 
         // ★デバッグログ（前回仕込んだもの）
-        Log.d("MyWebsocketClient", "Sending: $myMessage")
+        Log.d("MyWebsocketClient", "Sending: $jsonString")
 
         // メッセージをサーバーに送信
         viewModelScope.launch {
             try {
-                // ChatMessageオブジェクトをJSON文字列に自動変換して送信
-                webSocketSession?.sendSerialized(myMessage)
+                // JSON文字列送信
+                webSocketSession?.send(jsonString)
+
             } catch (e: Exception) {
                 // ▼▼▼ ここにログを追加 ▼▼▼
                 Log.e("MyWebsocketClient", "Error in sendMessage!", e)
