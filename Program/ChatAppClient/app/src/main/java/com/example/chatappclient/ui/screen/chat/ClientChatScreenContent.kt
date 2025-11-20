@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 import com.example.chatappclient.ui.component.ChatBubble
 import com.example.chatappclient.ui.component.EndChatConfirmAlert
+import com.example.chatappclient.ui.component.SelectRecipientDialog
 
 /**
  * チャット画面 ステートレスUIコンポーネント
@@ -64,6 +65,9 @@ fun ClientChatScreenContent(
 
     // アラート表示状態管理
     val showAlert = remember { mutableStateOf(false) }
+
+    // 送信先選択ダイアログ表示状態管理
+    val showDialog = remember { mutableStateOf(false) }
 
     // スクロール状態を管理
     val listState = rememberLazyListState()
@@ -124,11 +128,11 @@ fun ClientChatScreenContent(
                     Spacer(modifier = Modifier.Companion.width(8.dp))
                     IconButton(
                         onClick = {
+                            // 接続中ユーザー情報要求送信
                             onRequest()
 
-                            // メッセージ送信処理
-                            onSendMessageButtonClick(messageText)
-                            messageText = ""
+                            // 送信先選択ダイアログ表示
+                            showDialog.value = true
                         },
                         enabled = messageText.isNotBlank() && uiState.connectionStatus == MyWebsocketClientStatus.CONNECTED,
                         colors = IconButtonDefaults.iconButtonColors(
@@ -169,6 +173,19 @@ fun ClientChatScreenContent(
                 }
             }
         }
+    }
+
+    // ----- 送信先選択ダイアログ表示 -----
+    if (showDialog.value) {
+        SelectRecipientDialog(
+            recipientsList = uiState.connectionUserList,
+            onDismissRequest = { showDialog.value = false },    // "戻る"
+            onSend = {  // "送信"
+                onSendMessageButtonClick(messageText)
+                messageText = ""
+                showDialog.value = false
+            }
+        )
     }
 
     // ----- チャット終了確認アラート表示 -----

@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.example.chatappclient.data.model.ConnectionUser
 
-// ----- 仮の送信先リスト -----
-val tempList = mutableListOf(
+// ----- プレビュー用 仮の送信先リスト -----
+private val tempList = mutableListOf(
     ConnectionUser(0, "あいうえおかきくけこさしすせそたちつてと"),
     ConnectionUser(1, "B"),
     ConnectionUser(2, "C"),
