@@ -1,8 +1,10 @@
 package com.example.chatappserver.data.websocket
 
 import com.example.chatappserver.data.model.ConnectionUser
+import com.example.chatappserver.data.model.ConnectionUserList
 import com.example.chatappserver.data.model.FrameID
 import com.example.chatappserver.data.model.MessageBroadcast
+import com.example.chatappserver.data.model.RequestConnectionUserInfo
 import com.example.chatappserver.data.model.UserID
 import com.example.chatappserver.data.model.UserName
 import io.ktor.serialization.kotlinx.json.json
@@ -138,6 +140,12 @@ class MyWebsocketServer {
                                 targetSession.session.send(Frame.Text(jsonString))
                             }
                         }
+
+                        // ----- 接続中ユーザー情報要求 -----
+                        is RequestConnectionUserInfo -> {}
+
+                        // ----- 接続中ユーザー一覧（受信しない） -----
+                        is ConnectionUserList -> {}
 
                         // ----- ブロードキャストメッセージ -----
                         is MessageBroadcast -> {
