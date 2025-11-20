@@ -4,7 +4,9 @@ import com.example.chatappclient.data.model.ChatMessage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatappclient.data.model.ConnectionUserList
 import com.example.chatappclient.data.model.FrameID
+import com.example.chatappclient.data.model.RequestConnectionUserInfo
 import com.example.chatappclient.data.model.UserID
 import com.example.chatappclient.data.model.UserName
 import io.ktor.client.*
@@ -132,6 +134,12 @@ class MyWebsocketClient : ViewModel() {
 
                         // ----- ユーザー名（受信しない） -----
                         is UserName -> {}
+
+                        // ----- 接続中ユーザー情報要求（受信しない） -----
+                        is RequestConnectionUserInfo -> {}
+
+                        // ----- 接続中ユーザー一覧 -----
+                        is ConnectionUserList -> {}
 
                         // ----- ブロードキャストメッセージ -----
                         is ChatMessage -> {
