@@ -48,6 +48,7 @@ fun ClientChatScreen(
         uiState = uiState,
         onDisconnect = viewModel::disconnect,
         onDisconnectButtonClick = onDisconnect,
+        onRequest = viewModel::sendRequestConnectionUserInfo,
         onSendMessageButtonClick = viewModel::sendMessage
     )
 }

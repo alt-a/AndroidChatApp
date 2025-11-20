@@ -142,7 +142,9 @@ class MyWebsocketServer {
                         }
 
                         // ----- 接続中ユーザー情報要求 -----
-                        is RequestConnectionUserInfo -> {}
+                        is RequestConnectionUserInfo -> {
+                            println("Receive request!")
+                        }
 
                         // ----- 接続中ユーザー一覧（受信しない） -----
                         is ConnectionUserList -> {}

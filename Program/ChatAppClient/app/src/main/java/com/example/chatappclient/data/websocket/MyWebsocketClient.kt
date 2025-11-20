@@ -196,6 +196,34 @@ class MyWebsocketClient : ViewModel() {
     }
 
     /**
+     * サーバーに接続中ユーザー情報を要求する
+     */
+    fun sendRequestConnectionUserInfo() {
+        // 未接続なら何もしない
+        if (webSocketSession == null || !webSocketSession!!.isActive) return
+
+        Log.d("MyWebsocketClient", "Attempt to send request.")
+
+        // 送信データ作成（フレーム識別子付きJSON文字列）
+        val request = RequestConnectionUserInfo
+        val jsonString = Json.encodeToString(FrameID.serializer(), request)
+
+        viewModelScope.launch {
+            try {
+                // 接続中ユーザー情報要求フレームをサーバーへ送信
+                Log.d("MyWebsocketClient", "Submit request.")
+                webSocketSession?.send(Frame.Text(jsonString))
+
+            } catch (e: Exception) {
+                Log.e("MyWebsocketClient", "Error in sendRequestConnectionUserInfo!", e)
+
+                // 送信失敗
+                _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
+            }
+        }
+    }
+
+    /**
      * サーバーにメッセージを送信する
      * @param messageText 送信するメッセージ本文
      */

@@ -56,6 +56,7 @@ fun ClientChatScreenContent(
     uiState: ClientChatScreenUIState,
     onDisconnect: () -> Unit,
     onDisconnectButtonClick: () -> Unit,
+    onRequest: () -> Unit,
     onSendMessageButtonClick: (message: String) -> Unit
 ) {
     // 画面下部のメッセージ入力欄用の状態変数
@@ -123,6 +124,8 @@ fun ClientChatScreenContent(
                     Spacer(modifier = Modifier.Companion.width(8.dp))
                     IconButton(
                         onClick = {
+                            onRequest()
+
                             // メッセージ送信処理
                             onSendMessageButtonClick(messageText)
                             messageText = ""
@@ -188,6 +191,7 @@ fun ClientChatScreenContentPreview() {
         uiState = ClientChatScreenUIState(),
         onDisconnect = {},
         onDisconnectButtonClick = {},
+        onRequest = {},
         onSendMessageButtonClick = {}
     )
 }
