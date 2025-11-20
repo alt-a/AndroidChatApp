@@ -1,4 +1,4 @@
-package com.example.chatappclient
+package com.example.chatappclient.data.model
 
 /**
  * 接続中ユーザー情報データクラス

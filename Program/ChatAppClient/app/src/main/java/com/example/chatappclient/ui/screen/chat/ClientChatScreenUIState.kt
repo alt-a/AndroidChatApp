@@ -1,6 +1,6 @@
 package com.example.chatappclient.ui.screen.chat
 
-import com.example.chatappclient.ChatMessage
+import com.example.chatappclient.data.model.ChatMessage
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
 /**

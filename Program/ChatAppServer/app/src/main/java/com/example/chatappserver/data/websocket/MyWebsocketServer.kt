@@ -1,7 +1,10 @@
 package com.example.chatappserver.data.websocket
 
 import com.example.chatappserver.data.model.ConnectionUser
+import com.example.chatappserver.data.model.FrameID
 import com.example.chatappserver.data.model.MessageBroadcast
+import com.example.chatappserver.data.model.UserID
+import com.example.chatappserver.data.model.UserName
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
@@ -51,9 +54,12 @@ class MyWebsocketServer {
     private val netty = embeddedServer(Netty, port = 8080) {
 
         // JSONプラグインのインストール
-        // 今は必要ないが、サーバー側でJSON読むなら要る
         install(ContentNegotiation) {
-            json() // kotlinx.serialization を使う設定
+            // kotlinx.serialization を使う設定
+            json(Json {
+                ignoreUnknownKeys = true        // JSONに未知のキーがあっても無視
+                classDiscriminator = "content"  // 識別子キー
+            })
         }
 
         // WebSocketプラグインのインストール
@@ -72,30 +78,69 @@ class MyWebsocketServer {
                 println("Connection established! Adding session: $this")
                 val newSession = addSession(this)   // 'this' が接続してきたセッションです
 
-                try {
-                    // 2. メッセージ受信ループ
-                    incoming.consumeEach { frame ->
-                        if (frame is Frame.Text) {
-                            val receivedText = frame.readText()
-                            println("Received: $receivedText. Broadcasting to ${connections.value.size} clients...")
+                // メッセージ受信ループ (接続が切れるまでここで待ち続ける)
+                listenForMessages(newSession)
+            }
+        }
+    }
 
-                            // JSON解析
-                            val chatMessage = Json.decodeFromString<MessageBroadcast>(receivedText)
+    /** サーバーを起動する */
+    fun start() {
+        // wait=true で、サーバーが停止するまでこのスレッドをブロックする
+        netty.start(wait = true)
+    }
+
+    /**
+     * メッセージ受信ループ
+     * @param targetSession : 対象のWebSocketセッション
+     */
+    private suspend fun listenForMessages(targetSession: IdentifiedSession) {
+        try {
+            // 2. メッセージ受信ループ
+            targetSession.session.incoming.consumeEach { frame ->
+                if (frame is Frame.Text) {
+                    val receivedText = frame.readText()
+                    println("Received: $receivedText. Broadcasting to ${connections.value.size} clients...")
+
+                    // JSON解析
+                    val clientMessage: FrameID = Json.decodeFromString(receivedText)
+
+                    // 受信フレームの内容により処理を分岐
+                    when (clientMessage) {
+                        // ----- ユーザーID（受信しない） -----
+                        is UserID -> {}
+
+                        // ----- ユーザー名 -----
+                        is UserName -> {
+                            println("Receive username!")
 
                             // 接続中ユーザーリスト更新
-                            // リストに存在していないとき追加する
-                            val searchUser = _userList.value.filter { it.name == chatMessage.user }
+                            // 同一IDが存在していないことを確認して追加する
+                            val searchUser = _userList.value.filter { it.id == targetSession.id }
                             if (searchUser.isEmpty()) {
                                 val updatedList = _userList.value.toMutableList().apply {
                                     val newUser = ConnectionUser(
-                                        id = newSession.id,
-                                        name = chatMessage.user
+                                        id = targetSession.id,
+                                        name = clientMessage.name
                                     )
                                     add(newUser)
                                 }
                                 _userList.value = updatedList
                             }
 
+                            // クライアントにユーザーIDを通知
+                            if (targetSession.session.isActive) {
+                                // 送信データ作成（フレーム識別子付きJSON文字列）
+                                val id = UserID(id = targetSession.id)
+                                val jsonString = Json.encodeToString(FrameID.serializer(), id)
+
+                                // ユーザーIDフレームをクライアントへ送信
+                                targetSession.session.send(Frame.Text(jsonString))
+                            }
+                        }
+
+                        // ----- ブロードキャストメッセージ -----
+                        is MessageBroadcast -> {
                             // 3. 接続している全員にメッセージを中継 (ブロードキャスト)
                             connections.value.forEach { session ->
                                 // 念のため、セッションがアクティブか確認
@@ -106,31 +151,26 @@ class MyWebsocketServer {
                             }
                         }
                     }
-                } catch (e: Exception) {
-                    // クライアントが切断した場合 (アプリを閉じた、通信が途切れたなど)
-                    println("Connection error: ${e.localizedMessage}")
-                } finally {
-                    // 4. 接続が切れたら (try-finally)、必ず管理リストから削除
-                    println("Connection closed. Removing session: $this")
-                    val rmSession = removeSession(this)
-
-                    // 接続中ユーザーリスト更新
-                    if (rmSession != null) {
-                        val currentList = _userList.value
-                        val removeUser = currentList.filter { it.id == rmSession.id }
-
-                        val updatedList = currentList - removeUser
-                        _userList.value = updatedList
-                    }
                 }
             }
-        }
-    }
+        } catch (e: Exception) {
+            // クライアントが切断した場合 (アプリを閉じた、通信が途切れたなど)
+            println("Connection error: ${e.localizedMessage}")
 
-    /** サーバーを起動する */
-    fun start() {
-        // wait=true で、サーバーが停止するまでこのスレッドをブロックする
-        netty.start(wait = true)
+        } finally {
+            // 4. 接続が切れたら (try-finally)、必ず管理リストから削除
+            println("Connection closed. Removing session: ${targetSession.session}")
+            val rmSession = removeSession(targetSession.id)
+
+            // 接続中ユーザーリスト更新
+            if (rmSession != null) {
+                val currentList = _userList.value
+                val removeUser = currentList.filter { it.id == rmSession.id }
+
+                val updatedList = currentList - removeUser
+                _userList.value = updatedList
+            }
+        }
     }
 
     /** サーバーを停止する */
@@ -169,14 +209,14 @@ class MyWebsocketServer {
     /**
      * WebSocketセッションをリストから削除
      * （mutexによりリスト操作の競合防止）
-     * @param session   : 削除したいWebSocketセッション
-     * @return          : 削除対象セッション＆ID
+     * @param id    : 削除したいWebSocketセッションのユーザーID
+     * @return      : 削除対象セッション＆ID
      */
-    private suspend fun removeSession(session: DefaultWebSocketSession): IdentifiedSession? {
+    private suspend fun removeSession(id: Int): IdentifiedSession? {
         mutex.withLock {
             // 現在のセッションリストから削除対象を抽出
             val currentSet = _connections.value
-            val sessionToRemoveData = currentSet.find { it.session == session }
+            val sessionToRemoveData = currentSet.find { it.id == id }
 
             // セッションリストから削除
             if (sessionToRemoveData != null) {
