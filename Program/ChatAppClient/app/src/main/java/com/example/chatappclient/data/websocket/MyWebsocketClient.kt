@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.chatappclient.data.model.ConnectionUser
 import com.example.chatappclient.data.model.ConnectionUserList
 import com.example.chatappclient.data.model.FrameID
+import com.example.chatappclient.data.model.MessageSpecified
+import com.example.chatappclient.data.model.MessageToYou
 import com.example.chatappclient.data.model.RequestConnectionUserInfo
 import com.example.chatappclient.data.model.UserID
 import com.example.chatappclient.data.model.UserName
@@ -167,6 +169,12 @@ class MyWebsocketClient : ViewModel() {
                             // (UIが更新される)
                             _messages.value = _messages.value + serverMessage
                         }
+
+                        // ----- 個別メッセージ（送信用フレーム・受信しない） -----
+                        is MessageSpecified -> {}
+
+                        // ----- メッセージ -----
+                        is MessageToYou -> {}
                     }
                 }
             }
