@@ -139,7 +139,9 @@ class MyWebsocketClient : ViewModel() {
                         is RequestConnectionUserInfo -> {}
 
                         // ----- 接続中ユーザー一覧 -----
-                        is ConnectionUserList -> {}
+                        is ConnectionUserList -> {
+                            Log.d("MyWebsocketClient", "Receive UserList: ${serverMessage.list}")
+                        }
 
                         // ----- ブロードキャストメッセージ -----
                         is ChatMessage -> {

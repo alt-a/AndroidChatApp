@@ -144,6 +144,16 @@ class MyWebsocketServer {
                         // ----- 接続中ユーザー情報要求 -----
                         is RequestConnectionUserInfo -> {
                             println("Receive request!")
+
+                            // 接続中ユーザー一覧を返す
+                            // 送信データ作成（フレーム識別子付きJSON文字列）
+                            val list = ConnectionUserList(
+                                list = _userList.value
+                            )
+                            val jsonString = Json.encodeToString(FrameID.serializer(), list)
+
+                            // 接続中ユーザー一覧フレームをクライアントへ送信
+                            targetSession.session.send(Frame.Text(jsonString))
                         }
 
                         // ----- 接続中ユーザー一覧（受信しない） -----
