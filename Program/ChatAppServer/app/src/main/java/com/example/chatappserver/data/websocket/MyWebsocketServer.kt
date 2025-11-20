@@ -4,6 +4,8 @@ import com.example.chatappserver.data.model.ConnectionUser
 import com.example.chatappserver.data.model.ConnectionUserList
 import com.example.chatappserver.data.model.FrameID
 import com.example.chatappserver.data.model.MessageBroadcast
+import com.example.chatappserver.data.model.MessageSpecified
+import com.example.chatappserver.data.model.MessageToYou
 import com.example.chatappserver.data.model.RequestConnectionUserInfo
 import com.example.chatappserver.data.model.UserID
 import com.example.chatappserver.data.model.UserName
@@ -170,6 +172,12 @@ class MyWebsocketServer {
                                 }
                             }
                         }
+
+                        // ----- 個別メッセージ -----
+                        is MessageSpecified -> {}
+
+                        // ----- メッセージ（送信用フレーム・受信しない） -----
+                        is MessageToYou -> {}
                     }
                 }
             }
