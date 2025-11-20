@@ -4,7 +4,10 @@ import com.example.chatappclient.data.model.ChatMessage
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.chatappclient.data.model.ConnectionUser
+import com.example.chatappclient.data.model.ConnectionUserList
 import com.example.chatappclient.data.model.FrameID
+import com.example.chatappclient.data.model.RequestConnectionUserInfo
 import com.example.chatappclient.data.model.UserID
 import com.example.chatappclient.data.model.UserName
 import io.ktor.client.*
@@ -18,6 +21,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -55,6 +59,13 @@ class MyWebsocketClient : ViewModel() {
     // ★UIにはこのリストを表示します
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages = _messages.asStateFlow()
+
+    // 自分のユーザーID
+    private var myID: Int = 0
+
+    // 接続中ユーザー一覧 状態管理
+    private val _userList = MutableStateFlow<List<ConnectionUser>>(emptyList())
+    val userList: StateFlow<List<ConnectionUser>> = _userList.asStateFlow()
 
     /**
      * サーバーへの接続を開始する
@@ -128,10 +139,27 @@ class MyWebsocketClient : ViewModel() {
                         // ----- ユーザーID -----
                         is UserID -> {
                             Log.d("MyWebsocketClient", "Receive UserID: ${serverMessage.id}")
+                            myID = serverMessage.id
                         }
 
                         // ----- ユーザー名（受信しない） -----
                         is UserName -> {}
+
+                        // ----- 接続中ユーザー情報要求（受信しない） -----
+                        is RequestConnectionUserInfo -> {}
+
+                        // ----- 接続中ユーザー一覧 -----
+                        is ConnectionUserList -> {
+                            Log.d("MyWebsocketClient", "Receive UserList: ${serverMessage.list}")
+
+                            // リスト更新
+                            // 念のため自分がリストに入っていることを確認し、リストから除去
+                            val me = serverMessage.list.find { it.id == myID }
+                            if (me != null) {
+                                val updateList = serverMessage.list - me
+                                _userList.value = updateList
+                            }
+                        }
 
                         // ----- ブロードキャストメッセージ -----
                         is ChatMessage -> {
@@ -180,6 +208,34 @@ class MyWebsocketClient : ViewModel() {
 
             } catch (e: Exception) {
                 Log.e("MyWebsocketClient", "Error in sendUserName!", e)
+
+                // 送信失敗
+                _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
+            }
+        }
+    }
+
+    /**
+     * サーバーに接続中ユーザー情報を要求する
+     */
+    fun sendRequestConnectionUserInfo() {
+        // 未接続なら何もしない
+        if (webSocketSession == null || !webSocketSession!!.isActive) return
+
+        Log.d("MyWebsocketClient", "Attempt to send request.")
+
+        // 送信データ作成（フレーム識別子付きJSON文字列）
+        val request = RequestConnectionUserInfo
+        val jsonString = Json.encodeToString(FrameID.serializer(), request)
+
+        viewModelScope.launch {
+            try {
+                // 接続中ユーザー情報要求フレームをサーバーへ送信
+                Log.d("MyWebsocketClient", "Submit request.")
+                webSocketSession?.send(Frame.Text(jsonString))
+
+            } catch (e: Exception) {
+                Log.e("MyWebsocketClient", "Error in sendRequestConnectionUserInfo!", e)
 
                 // 送信失敗
                 _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
