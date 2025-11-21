@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.chatappclient.data.model.ConnectionUser
 import com.example.chatappclient.data.model.ConnectionUserList
 import com.example.chatappclient.data.model.FrameID
+import com.example.chatappclient.data.model.MessageSpecified
+import com.example.chatappclient.data.model.MessageToYou
 import com.example.chatappclient.data.model.RequestConnectionUserInfo
 import com.example.chatappclient.data.model.UserID
 import com.example.chatappclient.data.model.UserName
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import java.time.Instant
 
 class MyWebsocketClient : ViewModel() {
 
@@ -167,6 +170,14 @@ class MyWebsocketClient : ViewModel() {
                             // (UIが更新される)
                             _messages.value = _messages.value + serverMessage
                         }
+
+                        // ----- 個別メッセージ（送信用フレーム・受信しない） -----
+                        is MessageSpecified -> {}
+
+                        // ----- メッセージ -----
+                        is MessageToYou -> {
+                            Log.d("MyWebsocketClient", "Receive message!: $serverMessage")
+                        }
                     }
                 }
             }
@@ -276,6 +287,51 @@ class MyWebsocketClient : ViewModel() {
 
                 // 送信失敗
                 _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR//"Send Error: ${e.message}"
+            }
+        }
+    }
+
+    /**
+     * 個別メッセージを送信する
+     * @param to            : 送信先ユーザーIDリスト
+     * @param messageText   : メッセージ本文
+     */
+    fun sendMessageSpecified(to: List<Int>, messageText: String) {
+        // 未接続、またはメッセージが空なら何もしない
+        if (webSocketSession == null || !webSocketSession!!.isActive || messageText.isBlank()) return
+
+        // 送信先リストに自分を追加
+        // 念のため自分がリストに入っていないことを確認し、リストに追加
+        var toList = to
+        val me = to.find { it == myID }
+        if (me == null) {
+            val updateList = to + myID
+            toList = updateList
+        }
+
+        // 現在時刻を取得（Unix時間）
+        val currentUnixTime = Instant.now().epochSecond
+
+        // 送信データ作成（フレーム識別子付きJSON文字列）
+        val myMessage = MessageSpecified(
+            to = toList,
+            from = myID,
+            message = messageText,
+            timestamp = currentUnixTime
+        )
+        val jsonString = Json.encodeToString(FrameID.serializer(), myMessage)
+
+        viewModelScope.launch {
+            try {
+                // 個別メッセージフレームをサーバーへ送信
+                Log.d("MyWebsocketClient", "Submit specified message.")
+                webSocketSession?.send(Frame.Text(jsonString))
+
+            } catch (e: Exception) {
+                Log.e("MyWebsocketClient", "Error in sendMessageSpecified!", e)
+
+                // 送信失敗
+                _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
             }
         }
     }
