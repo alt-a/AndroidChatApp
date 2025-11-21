@@ -1,10 +1,10 @@
-package com.example.chatappserver.data.model
+package com.example.chatappclient.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * ブロードキャストメッセージ受信フレーム データクラス
+ * ブロードキャストメッセージ送信フレーム データクラス
  * @property from       : メッセージ送信元 ユーザーID
  * @property message    : メッセージ
  * @property timestamp  : メッセージ送信時刻（Unix時間）

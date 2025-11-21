@@ -164,14 +164,22 @@ class MyWebsocketServer {
 
                         // ----- ブロードキャストメッセージ -----
                         is MessageBroadcast -> {
-                            // 3. 接続している全員にメッセージを中継 (ブロードキャスト)
-                            connections.value.forEach { session ->
-                                // 念のため、セッションがアクティブか確認
-                                if (session.session.isActive) {
-                                    // 送られてきたテキスト(JSON文字列)をそのまま送る
-                                    session.session.send(Frame.Text(receivedText))
-                                }
-                            }
+                            println("Receive broadcast message!: $clientMessage")
+
+                            // 接続している全員にメッセージを中継（ブロードキャスト）
+                            // 接続中ユーザーリストからIDを抽出
+                            val sessionIdList = connections.value.map { session -> session.id }
+
+                            // 送信データ作成（フレーム識別子付きJSON文字列）
+                            val transferMsg = MessageToYou(
+                                from = clientMessage.from,
+                                message = clientMessage.message,
+                                timestamp = clientMessage.timestamp
+                            )
+                            val jsonString = Json.encodeToString(FrameID.serializer(), transferMsg)
+
+                            // メッセージ転送
+                            sendMessageToYou(toList = sessionIdList, message = jsonString)
                         }
 
                         // ----- 個別メッセージ -----
