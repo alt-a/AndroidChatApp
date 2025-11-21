@@ -175,7 +175,9 @@ class MyWebsocketClient : ViewModel() {
                         is MessageSpecified -> {}
 
                         // ----- メッセージ -----
-                        is MessageToYou -> {}
+                        is MessageToYou -> {
+                            Log.d("MyWebsocketClient", "Receive message!: $serverMessage")
+                        }
                     }
                 }
             }

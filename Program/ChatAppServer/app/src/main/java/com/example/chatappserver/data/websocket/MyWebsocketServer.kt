@@ -33,6 +33,7 @@ import kotlinx.serialization.json.Json
 import java.time.Duration
 import java.util.Collections
 import java.util.LinkedHashSet
+import kotlin.collections.forEach
 
 class MyWebsocketServer {
 
@@ -176,6 +177,18 @@ class MyWebsocketServer {
                         // ----- 個別メッセージ -----
                         is MessageSpecified -> {
                             println("Receive specified message!: $clientMessage")
+
+                            // 指定されたユーザーにメッセージを転送
+                            // 送信データ作成（フレーム識別子付きJSON文字列）
+                            val transferMsg = MessageToYou(
+                                from = clientMessage.from,
+                                message = clientMessage.message,
+                                timestamp = clientMessage.timestamp
+                            )
+                            val jsonString = Json.encodeToString(FrameID.serializer(), transferMsg)
+
+                            // メッセージ転送
+                            sendMessageToYou(toList = clientMessage.to, message = jsonString)
                         }
 
                         // ----- メッセージ（送信用フレーム・受信しない） -----
@@ -199,6 +212,23 @@ class MyWebsocketServer {
 
                 val updatedList = currentList - removeUser
                 _userList.value = updatedList
+            }
+        }
+    }
+
+    /**
+     * メッセージ転送関数
+     * @param toList    : 送信先ユーザーIDリスト
+     * @param message   : メッセージ
+     */
+    private suspend fun sendMessageToYou(toList: List<Int>, message: String) {
+        _connections.value.forEach { (id, session) ->
+            if (toList.contains(id)) {
+                // 現在のセッションが送信先リストに入っているとき
+                // 念のためアクティブであることを確認して転送
+                if (session.isActive) {
+                    session.send(Frame.Text(message))
+                }
             }
         }
     }
