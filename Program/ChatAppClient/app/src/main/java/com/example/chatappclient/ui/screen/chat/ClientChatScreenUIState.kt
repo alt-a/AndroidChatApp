@@ -2,19 +2,20 @@ package com.example.chatappclient.ui.screen.chat
 
 import com.example.chatappclient.data.model.MessageBroadcast
 import com.example.chatappclient.data.model.ConnectionUser
+import com.example.chatappclient.data.model.MessageToYou
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
 /**
  * チャット画面 ViewModel保持データ表示用データクラス
  */
 data class ClientChatScreenUIState(
-    val messages: List<MessageBroadcast> = listOf(
-        MessageBroadcast(
+    val messages: List<MessageToYou> = listOf(
+        MessageToYou(
             from = 1,
             message = "こんにちは。",
             timestamp = 0
         ),
-        MessageBroadcast(
+        MessageToYou(
             from = 2,
             message = "おつかれさまです。",
             timestamp = 0

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.chatappclient.data.model.MessageBroadcast
+import com.example.chatappclient.data.model.MessageToYou
 
 /**
  * チャットバブル
@@ -23,7 +24,7 @@ import com.example.chatappclient.data.model.MessageBroadcast
  * @param isMine    : 送信メッセージ（true）、受信メッセージ（false）
  */
 @Composable
-fun ChatBubble(msg: MessageBroadcast, isMine: Boolean) {
+fun ChatBubble(msg: MessageToYou, isMine: Boolean) {
     // 送信・受信で吹き出し方向を変更
     val sendBubbleShape = RoundedCornerShape(
         topStart = 10.dp,

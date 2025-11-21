@@ -60,7 +60,7 @@ class MyWebsocketClient : ViewModel() {
 
     // チャットメッセージのリストを管理する
     // ★UIにはこのリストを表示します
-    private val _messages = MutableStateFlow<List<MessageBroadcast>>(emptyList())
+    private val _messages = MutableStateFlow<List<MessageToYou>>(emptyList())
     val messages = _messages.asStateFlow()
 
     // 自分のユーザーID
@@ -165,12 +165,8 @@ class MyWebsocketClient : ViewModel() {
                             }
                         }
 
-                        // ----- ブロードキャストメッセージ -----
-                        is MessageBroadcast -> {
-                            // メッセージリストの「末尾」に新しいメッセージを追加
-                            // (UIが更新される)
-                            _messages.value = _messages.value + serverMessage
-                        }
+                        // ----- ブロードキャストメッセージ（送信用フレーム・受信しない） -----
+                        is MessageBroadcast -> {}
 
                         // ----- 個別メッセージ（送信用フレーム・受信しない） -----
                         is MessageSpecified -> {}
@@ -178,6 +174,10 @@ class MyWebsocketClient : ViewModel() {
                         // ----- メッセージ -----
                         is MessageToYou -> {
                             Log.d("MyWebsocketClient", "Receive message!: $serverMessage")
+
+                            // メッセージリストの「末尾」に新しいメッセージを追加
+                            // (UIが更新される)
+                            _messages.value = _messages.value + serverMessage
                         }
                     }
                 }
