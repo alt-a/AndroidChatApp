@@ -52,7 +52,7 @@ fun ChatBubble(msg: MessageBroadcast, isMine: Boolean) {
         // ユーザー名
         if (isMine == false) {
             Text(
-                text = msg.user,
+                text = msg.from.toString(), // TODO: MessageBroadcast 内容変更による暫定対応
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Companion.Bold,
                 color = MaterialTheme.colorScheme.primary

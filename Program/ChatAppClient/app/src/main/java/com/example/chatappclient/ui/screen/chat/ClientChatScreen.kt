@@ -21,8 +21,8 @@ fun ClientChatScreen(
     // (messages.value が更新されると、 'messages' も自動的に更新 = 再描画)
     val messages by viewModel.messages.collectAsState()
 
-    // ViewModelが保持している自分の名前
-    val myName by viewModel.userName.collectAsState()
+    // ViewModelが保持している自分のユーザーID
+    val myID by viewModel.myID.collectAsState()
 
     // ViewModelが保持している接続状態の監視
     val connectionStatus by viewModel.connectionStatus.collectAsState()
@@ -33,7 +33,7 @@ fun ClientChatScreen(
     // ステートレスUIコンポーネントにViewModelデータを渡すための準備
     val uiState = ClientChatScreenUIState(
         messages = messages,
-        userName = myName,
+        myUserID = myID,
         connectionStatus = connectionStatus,
         connectionUserList = connectionUserList
     )

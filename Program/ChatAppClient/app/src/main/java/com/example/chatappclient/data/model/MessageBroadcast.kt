@@ -4,13 +4,15 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * サーバーと送受信するJSONチャットメッセージのデータ構造。
- * @Serializable アノテーションを付けることで、
- * kotlinx.serialization がこのクラスとJSON文字列を相互変換できるようになる。
+ * ブロードキャストメッセージ送信フレーム データクラス
+ * @property from       : メッセージ送信元 ユーザーID
+ * @property message    : メッセージ
+ * @property timestamp  : メッセージ送信時刻（Unix時間）
  */
 @Serializable
 @SerialName("message_broadcast")
 data class MessageBroadcast(
-    val user: String,    // 送信者の名前 (例: "Hirayama")
-    val message: String  // メッセージ本文 (例: "こんにちは")
+    @SerialName("id_from") val from: Int,
+    val message: String,
+    val timestamp: Long
 ) : FrameID

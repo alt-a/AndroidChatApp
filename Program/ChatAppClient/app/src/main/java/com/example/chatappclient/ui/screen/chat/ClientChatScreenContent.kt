@@ -164,7 +164,7 @@ fun ClientChatScreenContent(
             )
         ) {
             items(uiState.messages) { msg ->
-                val isMine = (msg.user == uiState.userName)
+                val isMine = (msg.from == uiState.myUserID)
                 Box(
                     modifier = Modifier.Companion.fillMaxWidth(),
                     contentAlignment =

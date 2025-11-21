@@ -10,15 +10,17 @@ import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 data class ClientChatScreenUIState(
     val messages: List<MessageBroadcast> = listOf(
         MessageBroadcast(
-            user = "ユーザー1",
-            message = "こんにちは。"
+            from = 1,
+            message = "こんにちは。",
+            timestamp = 0
         ),
         MessageBroadcast(
-            user = "ユーザー2",
-            message = "おつかれさまです。"
+            from = 2,
+            message = "おつかれさまです。",
+            timestamp = 0
         )
     ),
-    val userName: String = "ユーザー1",
+    val myUserID: Int = 1,
     val connectionStatus: MyWebsocketClientStatus = MyWebsocketClientStatus.DISCONNECTED,
     val connectionUserList: List<ConnectionUser> = listOf(
         ConnectionUser(id = 1, name = "A"),
