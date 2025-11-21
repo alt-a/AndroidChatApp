@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 @SerialName("message_broadcast")
-data class ChatMessage(
+data class MessageBroadcast(
     val user: String,    // 送信者の名前 (例: "Hirayama")
     val message: String  // メッセージ本文 (例: "こんにちは")
 ) : FrameID

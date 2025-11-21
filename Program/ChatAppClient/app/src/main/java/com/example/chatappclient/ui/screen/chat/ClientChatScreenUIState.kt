@@ -1,6 +1,6 @@
 package com.example.chatappclient.ui.screen.chat
 
-import com.example.chatappclient.data.model.ChatMessage
+import com.example.chatappclient.data.model.MessageBroadcast
 import com.example.chatappclient.data.model.ConnectionUser
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
@@ -8,12 +8,12 @@ import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
  * チャット画面 ViewModel保持データ表示用データクラス
  */
 data class ClientChatScreenUIState(
-    val messages: List<ChatMessage> = listOf(
-        ChatMessage(
+    val messages: List<MessageBroadcast> = listOf(
+        MessageBroadcast(
             user = "ユーザー1",
             message = "こんにちは。"
         ),
-        ChatMessage(
+        MessageBroadcast(
             user = "ユーザー2",
             message = "おつかれさまです。"
         )

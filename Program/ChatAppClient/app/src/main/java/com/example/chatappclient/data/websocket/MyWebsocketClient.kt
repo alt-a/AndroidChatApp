@@ -1,6 +1,6 @@
 package com.example.chatappclient.data.websocket
 
-import com.example.chatappclient.data.model.ChatMessage
+import com.example.chatappclient.data.model.MessageBroadcast
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,7 +60,7 @@ class MyWebsocketClient : ViewModel() {
 
     // チャットメッセージのリストを管理する
     // ★UIにはこのリストを表示します
-    private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
+    private val _messages = MutableStateFlow<List<MessageBroadcast>>(emptyList())
     val messages = _messages.asStateFlow()
 
     // 自分のユーザーID
@@ -165,7 +165,7 @@ class MyWebsocketClient : ViewModel() {
                         }
 
                         // ----- ブロードキャストメッセージ -----
-                        is ChatMessage -> {
+                        is MessageBroadcast -> {
                             // メッセージリストの「末尾」に新しいメッセージを追加
                             // (UIが更新される)
                             _messages.value = _messages.value + serverMessage
@@ -263,7 +263,7 @@ class MyWebsocketClient : ViewModel() {
         if (webSocketSession == null || !webSocketSession!!.isActive || messageText.isBlank()) return
 
         // 自分が送信するメッセージも、自分の画面に表示する
-        val myMessage = ChatMessage(
+        val myMessage = MessageBroadcast(
             user = _userName.value, // 自分の名前
             message = messageText
         )
