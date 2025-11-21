@@ -175,6 +175,9 @@ class MyWebsocketClient : ViewModel() {
                         is MessageToYou -> {
                             Log.d("MyWebsocketClient", "Receive message!: $serverMessage")
 
+                            // 接続中ユーザー一覧を取得
+                            sendRequestConnectionUserInfo()
+
                             // メッセージリストの「末尾」に新しいメッセージを追加
                             // (UIが更新される)
                             _messages.value = _messages.value + serverMessage

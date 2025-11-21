@@ -164,14 +164,20 @@ fun ClientChatScreenContent(
             )
         ) {
             items(uiState.messages) { msg ->
+                // 自分が送信したメッセージ
                 val isMine = (msg.from == uiState.myUserID)
+
+                // 送信元ユーザー名を取得
+                val nameMap: Map<Int, String> = uiState.connectionUserList.associate { it.id to it.name }
+                val name = nameMap.getOrElse(msg.from) { "Unknown User" }
+
                 Box(
                     modifier = Modifier.Companion.fillMaxWidth(),
                     contentAlignment =
                         if (isMine) Alignment.Companion.CenterEnd // 送信メッセージ: 画面右側に表示
                         else Alignment.Companion.CenterStart      // 受信メッセージ: 画面左側に表示
                 ) {
-                    ChatBubble(msg = msg, isMine = isMine)
+                    ChatBubble(msg = msg, name = name, isMine = isMine)
                 }
             }
         }

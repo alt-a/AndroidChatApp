@@ -24,7 +24,7 @@ import com.example.chatappclient.data.model.MessageToYou
  * @param isMine    : 送信メッセージ（true）、受信メッセージ（false）
  */
 @Composable
-fun ChatBubble(msg: MessageToYou, isMine: Boolean) {
+fun ChatBubble(msg: MessageToYou, name: String, isMine: Boolean) {
     // 送信・受信で吹き出し方向を変更
     val sendBubbleShape = RoundedCornerShape(
         topStart = 10.dp,
@@ -53,7 +53,7 @@ fun ChatBubble(msg: MessageToYou, isMine: Boolean) {
         // ユーザー名
         if (isMine == false) {
             Text(
-                text = msg.from.toString(), // TODO: MessageBroadcast 内容変更による暫定対応
+                text = name,
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Companion.Bold,
                 color = MaterialTheme.colorScheme.primary
