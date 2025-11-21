@@ -174,7 +174,9 @@ class MyWebsocketServer {
                         }
 
                         // ----- 個別メッセージ -----
-                        is MessageSpecified -> {}
+                        is MessageSpecified -> {
+                            println("Receive specified message!: $clientMessage")
+                        }
 
                         // ----- メッセージ（送信用フレーム・受信しない） -----
                         is MessageToYou -> {}

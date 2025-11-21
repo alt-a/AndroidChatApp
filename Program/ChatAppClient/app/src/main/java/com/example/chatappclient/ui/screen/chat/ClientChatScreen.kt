@@ -53,6 +53,7 @@ fun ClientChatScreen(
         onDisconnect = viewModel::disconnect,
         onDisconnectButtonClick = onDisconnect,
         onRequest = viewModel::sendRequestConnectionUserInfo,
-        onSendMessageButtonClick = viewModel::sendMessage
+        onSendMessageBroadcast = viewModel::sendMessage,
+        onSendMessageSpecified = viewModel::sendMessageSpecified
     )
 }

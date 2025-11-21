@@ -49,7 +49,8 @@ import com.example.chatappclient.ui.component.SelectRecipientDialog
  * @param uiState                   : ViewModelが保持するUIデータ
  * @param onDisconnect              : サーバー切断関数
  * @param onDisconnectButtonClick   : 画面遷移用コールバック関数
- * @param onSendMessageButtonClick  : メッセージ送信関数
+ * @param onSendMessageBroadcast    : ブロードキャストメッセージ送信関数
+ * @param onSendMessageSpecified    : 個別メッセージ送信関数
  */
 @OptIn(ExperimentalMaterial3Api::class) // ★TopAppBar用に必要
 @Composable
@@ -58,7 +59,8 @@ fun ClientChatScreenContent(
     onDisconnect: () -> Unit,
     onDisconnectButtonClick: () -> Unit,
     onRequest: () -> Unit,
-    onSendMessageButtonClick: (message: String) -> Unit
+    onSendMessageBroadcast: (message: String) -> Unit,
+    onSendMessageSpecified: (sendList: List<Int>, message: String) -> Unit
 ) {
     // 画面下部のメッセージ入力欄用の状態変数
     var messageText by remember { mutableStateOf("") }
@@ -180,10 +182,17 @@ fun ClientChatScreenContent(
         SelectRecipientDialog(
             recipientsList = uiState.connectionUserList,
             onDismissRequest = { showDialog.value = false },    // "戻る"
-            onSend = {  // "送信"
-                onSendMessageButtonClick(messageText)
+            onSendBroadcast = {
+                // "送信"（ブロードキャスト）
+                onSendMessageBroadcast(messageText)
                 messageText = ""
-                showDialog.value = false
+                showDialog.value = false    // ダイアログを閉じる
+            },
+            onSendSpecified = { sendList ->
+                // "送信"（個別に送信）
+                onSendMessageSpecified(sendList, messageText)
+                messageText = ""
+                showDialog.value = false    // ダイアログを閉じる
             }
         )
     }
@@ -209,6 +218,9 @@ fun ClientChatScreenContentPreview() {
         onDisconnect = {},
         onDisconnectButtonClick = {},
         onRequest = {},
-        onSendMessageButtonClick = {}
+        onSendMessageBroadcast = {},
+        onSendMessageSpecified = { sendList, message ->
+            // 何もしない
+        }
     )
 }
