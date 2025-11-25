@@ -1,11 +1,13 @@
 package com.example.chatappclient.ui.screen.chat
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -22,7 +24,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,12 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 import com.example.chatappclient.ui.component.ChatBubble
 import com.example.chatappclient.ui.component.EndChatConfirmAlert
+import com.example.chatappclient.ui.component.MaxLengthErrorOutlinedTextField
 import com.example.chatappclient.ui.component.SelectRecipientDialog
 
 /**
@@ -64,6 +67,9 @@ fun ClientChatScreenContent(
 ) {
     // 画面下部のメッセージ入力欄用の状態変数
     var messageText by remember { mutableStateOf("") }
+
+    // 最大入力文字数
+    val maxLength = 300
 
     // アラート表示状態管理
     val showAlert = remember { mutableStateOf(false) }
@@ -108,44 +114,75 @@ fun ClientChatScreenContent(
                 // 背景色設定
                 color = MaterialTheme.colorScheme.surfaceContainerLow
             ) {
-                Row(
+                Column(
                     modifier = Modifier.Companion
                         .fillMaxWidth()
                         .padding(8.dp)
                         .imePadding()               // ソフトキーボード表示時に押し上げる
-                        .navigationBarsPadding(),   // システムナビゲーションバーの高さ分押し上げる
-                    verticalAlignment = Alignment.Companion.CenterVertically,
+                        .navigationBarsPadding()    // システムナビゲーションバーの高さ分押し上げる
                 ) {
-                    OutlinedTextField(
-                        value = messageText,
-                        onValueChange = { messageText = it },
-                        modifier = Modifier.Companion.weight(1f),
-                        placeholder = {
-                            Text(
-                                text = "メッセージ",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Row(
+                        verticalAlignment = Alignment.Companion.CenterVertically,
+                    ) {
+                        MaxLengthErrorOutlinedTextField(
+                            value = messageText,
+                            onValueChange = { messageText = it },
+                            maxLength = maxLength,
+                            modifier = Modifier.Companion
+                                .weight(1f)
+                                .heightIn(max = 164.dp),
+                            placeholder = {
+                                Text(
+                                    text = "メッセージ",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        )
+                        Spacer(modifier = Modifier.Companion.width(8.dp))
+                        IconButton(
+                            onClick = {
+                                // 接続中ユーザー情報要求送信
+                                onRequest()
+
+                                // 送信先選択ダイアログ表示
+                                showDialog.value = true
+                            },
+                            enabled = (messageText.isNotBlank() && messageText.length <= maxLength && uiState.connectionStatus == MyWebsocketClientStatus.CONNECTED),
+                            colors = IconButtonDefaults.iconButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Send,
+                                contentDescription = "",
+                                modifier = Modifier.Companion.size(28.dp),
                             )
                         }
-                    )
-                    Spacer(modifier = Modifier.Companion.width(8.dp))
-                    IconButton(
-                        onClick = {
-                            // 接続中ユーザー情報要求送信
-                            onRequest()
+                    }
 
-                            // 送信先選択ダイアログ表示
-                            showDialog.value = true
-                        },
-                        enabled = messageText.isNotBlank() && uiState.connectionStatus == MyWebsocketClientStatus.CONNECTED,
-                        colors = IconButtonDefaults.iconButtonColors(
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Send,
-                            contentDescription = "",
-                            modifier = Modifier.Companion.size(28.dp),
-                        )
+                    // 入力文字数上限超過時 エラーメッセージ表示
+                    if (messageText.length > maxLength) {
+                        Row(
+                            modifier = Modifier.padding(top = 4.dp, start = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "文字数制限を",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                text = "${messageText.length - maxLength}文字超過",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "しており送信できません",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
             }
