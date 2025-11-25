@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
+import com.example.chatappclient.ui.component.MaxLengthErrorOutlinedTextField
 
 /**
  * ユーザー名入力画面 ステートレスUIコンポーネント
@@ -48,6 +50,9 @@ fun ClientLoginScreenContent(
     // 画面内で使用する一時的な状態変数
     var ip by remember { mutableStateOf("192.168.11.17") } // IP入力用
     var name by remember { mutableStateOf("alta") }          // 名前入力用
+
+    // 最大入力文字数
+    val maxLength = 20
 
     Scaffold(
         topBar = {
@@ -84,10 +89,13 @@ fun ClientLoginScreenContent(
             Spacer(modifier = Modifier.Companion.height(16.dp))
 
             // 名前入力欄
-            OutlinedTextField(
+            MaxLengthErrorOutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("あなたの名前") }
+                maxLength = maxLength,
+                modifier = Modifier.width(280.dp),
+                singleLine = true,
+                label = { Text("あなたの名前 (${name.length}/${maxLength})") }
             )
             Spacer(modifier = Modifier.Companion.height(16.dp))
 
@@ -99,7 +107,7 @@ fun ClientLoginScreenContent(
                     onConnect(ip, name)
                 },
                 // ★接続中はボタンを押せなくする
-                enabled = (ip.isNotBlank() && name.isNotBlank() && uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING),
+                enabled = (ip.isNotBlank() && name.isNotBlank() && name.length <= maxLength && uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
