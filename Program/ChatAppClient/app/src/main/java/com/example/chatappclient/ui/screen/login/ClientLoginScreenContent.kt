@@ -94,6 +94,7 @@ fun ClientLoginScreenContent(
                 onValueChange = { name = it },
                 maxLength = maxLength,
                 modifier = Modifier.width(280.dp),
+                enabled = uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING,
                 singleLine = true,
                 label = { Text("あなたの名前 (${name.length}/${maxLength})") }
             )
