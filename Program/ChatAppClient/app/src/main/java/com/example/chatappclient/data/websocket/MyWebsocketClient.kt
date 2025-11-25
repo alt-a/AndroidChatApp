@@ -1,6 +1,6 @@
 package com.example.chatappclient.data.websocket
 
-import com.example.chatappclient.data.model.ChatMessage
+import com.example.chatappclient.data.model.MessageBroadcast
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,11 +60,12 @@ class MyWebsocketClient : ViewModel() {
 
     // チャットメッセージのリストを管理する
     // ★UIにはこのリストを表示します
-    private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
+    private val _messages = MutableStateFlow<List<MessageToYou>>(emptyList())
     val messages = _messages.asStateFlow()
 
     // 自分のユーザーID
-    private var myID: Int = 0
+    private val _myID = MutableStateFlow(0)
+    val myID = _myID.asStateFlow()
 
     // 接続中ユーザー一覧 状態管理
     private val _userList = MutableStateFlow<List<ConnectionUser>>(emptyList())
@@ -142,7 +143,7 @@ class MyWebsocketClient : ViewModel() {
                         // ----- ユーザーID -----
                         is UserID -> {
                             Log.d("MyWebsocketClient", "Receive UserID: ${serverMessage.id}")
-                            myID = serverMessage.id
+                            _myID.value = serverMessage.id
                         }
 
                         // ----- ユーザー名（受信しない） -----
@@ -157,19 +158,15 @@ class MyWebsocketClient : ViewModel() {
 
                             // リスト更新
                             // 念のため自分がリストに入っていることを確認し、リストから除去
-                            val me = serverMessage.list.find { it.id == myID }
+                            val me = serverMessage.list.find { it.id == myID.value }
                             if (me != null) {
                                 val updateList = serverMessage.list - me
                                 _userList.value = updateList
                             }
                         }
 
-                        // ----- ブロードキャストメッセージ -----
-                        is ChatMessage -> {
-                            // メッセージリストの「末尾」に新しいメッセージを追加
-                            // (UIが更新される)
-                            _messages.value = _messages.value + serverMessage
-                        }
+                        // ----- ブロードキャストメッセージ（送信用フレーム・受信しない） -----
+                        is MessageBroadcast -> {}
 
                         // ----- 個別メッセージ（送信用フレーム・受信しない） -----
                         is MessageSpecified -> {}
@@ -177,6 +174,13 @@ class MyWebsocketClient : ViewModel() {
                         // ----- メッセージ -----
                         is MessageToYou -> {
                             Log.d("MyWebsocketClient", "Receive message!: $serverMessage")
+
+                            // 接続中ユーザー一覧を取得
+                            sendRequestConnectionUserInfo()
+
+                            // メッセージリストの「末尾」に新しいメッセージを追加
+                            // (UIが更新される)
+                            _messages.value = _messages.value + serverMessage
                         }
                     }
                 }
@@ -262,13 +266,15 @@ class MyWebsocketClient : ViewModel() {
         // 未接続、またはメッセージが空なら何もしない
         if (webSocketSession == null || !webSocketSession!!.isActive || messageText.isBlank()) return
 
-        // 自分が送信するメッセージも、自分の画面に表示する
-        val myMessage = ChatMessage(
-            user = _userName.value, // 自分の名前
-            message = messageText
-        )
+        // 現在時刻を取得（Unix時間）
+        val currentUnixTime = Instant.now().epochSecond
 
-        // メッセージをJSON文字列に変換（フレーム識別子付き）
+        // 送信データ作成（フレーム識別子付きJSON文字列）
+        val myMessage = MessageBroadcast(
+            from = myID.value,
+            message = messageText,
+            timestamp = currentUnixTime
+        )
         val jsonString = Json.encodeToString(FrameID.serializer(), myMessage)
 
         // ★デバッグログ（前回仕込んだもの）
@@ -303,9 +309,9 @@ class MyWebsocketClient : ViewModel() {
         // 送信先リストに自分を追加
         // 念のため自分がリストに入っていないことを確認し、リストに追加
         var toList = to
-        val me = to.find { it == myID }
+        val me = to.find { it == myID.value }
         if (me == null) {
-            val updateList = to + myID
+            val updateList = to + myID.value
             toList = updateList
         }
 
@@ -315,7 +321,7 @@ class MyWebsocketClient : ViewModel() {
         // 送信データ作成（フレーム識別子付きJSON文字列）
         val myMessage = MessageSpecified(
             to = toList,
-            from = myID,
+            from = myID.value,
             message = messageText,
             timestamp = currentUnixTime
         )
