@@ -134,7 +134,7 @@ fun ClientChatScreenContent(
                             placeholder = {
                                 Text(
                                     text = "メッセージ",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.7f)
                                 )
                             }
                         )
