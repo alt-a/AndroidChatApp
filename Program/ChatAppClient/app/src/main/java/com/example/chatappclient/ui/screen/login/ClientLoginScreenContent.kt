@@ -47,16 +47,19 @@ fun ClientLoginScreenContent(
     onBack: () -> Unit
 ) {
     // 画面内で使用する一時的な状態変数
-    var ip by remember { mutableStateOf("192.168.11.17") } // IP入力用
-    var name by remember { mutableStateOf("alta") }          // 名前入力用
+    var ip by remember { mutableStateOf("192.168.11.17") }  // IP入力用
+    var name by remember { mutableStateOf("alta") }         // 名前入力用
 
-    // 最大入力文字数
-    val maxLength = 20
+    // IPアドレス 最大入力文字数
+    val ipMaxLength = 15
+
+    // ユーザー名 最大入力文字数
+    val nameMaxLength = 20
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "ユーザー名設定") },
+                title = { Text(text = "ユーザー設定") },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack    // 起動時画面に戻る
@@ -84,18 +87,30 @@ fun ClientLoginScreenContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
-            Text(text = "ユーザー名を入力してください", style = MaterialTheme.typography.titleMedium)
+            Text(text = "IPアドレス・ユーザー名を入力してください", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.Companion.height(16.dp))
+
+            // IPアドレス入力欄
+            MaxLengthErrorOutlinedTextField(
+                value = ip,
+                onValueChange = { ip = it },
+                maxLength = ipMaxLength,
+                modifier = Modifier.width(280.dp),
+                enabled = uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING,
+                singleLine = true,
+                label = { Text("サーバーIPアドレス (${ip.length}/${ipMaxLength})") }
+            )
+            Spacer(modifier = Modifier.Companion.height(4.dp))
 
             // 名前入力欄
             MaxLengthErrorOutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                maxLength = maxLength,
+                maxLength = nameMaxLength,
                 modifier = Modifier.width(280.dp),
                 enabled = uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING,
                 singleLine = true,
-                label = { Text("あなたの名前 (${name.length}/${maxLength})") }
+                label = { Text("あなたの名前 (${name.length}/${nameMaxLength})") }
             )
             Spacer(modifier = Modifier.Companion.height(16.dp))
 
@@ -106,8 +121,14 @@ fun ClientLoginScreenContent(
                     // ViewModelのconnectメソッドを呼ぶ（だけにする）
                     onConnect(ip, name)
                 },
-                // ★接続中はボタンを押せなくする
-                enabled = (ip.isNotBlank() && name.isNotBlank() && name.length <= maxLength && uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING),
+                // ★ボタン有効条件
+                enabled = (
+                        // 空欄でない
+                        ip.isNotBlank() && name.isNotBlank()
+                        // 文字数制限を超えていない
+                        && name.length <= nameMaxLength && ip.length <= ipMaxLength
+                        // 接続中でない
+                        && uiState.connectionStatus != MyWebsocketClientStatus.CONNECTING),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
