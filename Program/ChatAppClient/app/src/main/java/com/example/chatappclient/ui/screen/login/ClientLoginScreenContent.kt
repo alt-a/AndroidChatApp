@@ -59,7 +59,7 @@ fun ClientLoginScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "ユーザー名設定") },
+                title = { Text(text = "ユーザー設定") },
                 navigationIcon = {
                     IconButton(
                         onClick = onBack    // 起動時画面に戻る
@@ -87,7 +87,7 @@ fun ClientLoginScreenContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Companion.CenterHorizontally
         ) {
-            Text(text = "ユーザー名を入力してください", style = MaterialTheme.typography.titleMedium)
+            Text(text = "IPアドレス・ユーザー名を入力してください", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.Companion.height(16.dp))
 
             // IPアドレス入力欄
