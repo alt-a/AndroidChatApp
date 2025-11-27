@@ -1,20 +1,14 @@
 package com.example.chatappserver
 
-import android.net.ConnectivityManager
-import android.net.LinkProperties
-import android.net.Network
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import com.example.chatappserver.data.ipaddress.MonitorManagerFactory
 import com.example.chatappserver.navigation.ChatAppServerNavigation
-import java.net.Inet4Address
 
 class MainActivity : ComponentActivity() {
 
