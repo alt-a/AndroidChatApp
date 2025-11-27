@@ -1,4 +1,16 @@
 package com.example.chatappserver
 
-class MyApplication {
+import android.app.Application
+import com.example.chatappserver.data.ipaddress.IpAddressMonitor
+
+/**
+ * IPアドレス監視処理用 Application
+ */
+class MyApplication : Application() {
+
+    // IPアドレス監視処理インスタンス取得
+    val ipAddressMonitor by lazy {
+        IpAddressMonitor(applicationContext)
+    }
+
 }
