@@ -11,5 +11,6 @@ data class ServerHomeScreenUIState(
         ConnectionUser(1, "A"),
         ConnectionUser(2, "B"),
         ConnectionUser(3, "C")
-    )
+    ),
+    val ipAddress: String = "000.000.000.000"
 )
