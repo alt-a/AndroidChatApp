@@ -114,7 +114,7 @@ class MyWebsocketClient : ViewModel() {
                 Log.e("MyWebsocketClient", "Connection failed!", e)
                 // ▲▲▲ ここまで ▲▲▲
 
-                webSocketSession = null // セッションをクリア
+                clearSession()
             }
         }
     }
@@ -190,6 +190,7 @@ class MyWebsocketClient : ViewModel() {
             // Closeフレームを受信するとincomingループを抜けここに到達する
             Log.d("MyWebsocketClient", "Close WebSocket Session")
             _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED
+            clearSession()
 
         } catch (e: Exception) {
             // ▼▼▼ ここにログを追加 ▼▼▼
@@ -198,7 +199,7 @@ class MyWebsocketClient : ViewModel() {
 
             // 受信中にエラー (切断など)
             _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED_ERROR
-            webSocketSession = null
+            clearSession()
         }
     }
 
@@ -353,13 +354,19 @@ class MyWebsocketClient : ViewModel() {
             } catch (e: Exception) {
                 Log.e("MyWebsocketClient", "Error during disconnect", e)
             } finally {
-                webSocketSession = null
                 _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED
-                _messages.value = emptyList() // チャット履歴をクリア
+                clearSession()
             }
         }
     }
 
+    /**
+     * WebSocketセッションクリア
+     */
+    private fun clearSession() {
+        webSocketSession = null         // セッションをクリア
+        _messages.value = emptyList()   // チャット履歴をクリア
+    }
 
     /**
      * ViewModelが破棄されるときに呼ばれる (Activity終了時など)
