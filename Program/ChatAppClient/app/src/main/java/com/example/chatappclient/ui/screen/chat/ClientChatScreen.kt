@@ -1,11 +1,9 @@
 package com.example.chatappclient.ui.screen.chat
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.example.chatappclient.data.websocket.MyWebsocketClient
-import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 
 /**
  * チャット画面
