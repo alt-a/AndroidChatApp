@@ -43,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chatappclient.data.websocket.MyWebsocketClientStatus
 import com.example.chatappclient.ui.component.ChatBubble
+import com.example.chatappclient.ui.component.DisconnectAlert
 import com.example.chatappclient.ui.component.EndChatConfirmAlert
 import com.example.chatappclient.ui.component.MaxLengthErrorOutlinedTextField
 import com.example.chatappclient.ui.component.SelectRecipientDialog
@@ -71,11 +72,21 @@ fun ClientChatScreenContent(
     // 最大入力文字数
     val maxLength = 300
 
-    // アラート表示状態管理
-    val showAlert = remember { mutableStateOf(false) }
+    // チャット終了確認アラート表示状態管理
+    val showEndChatConfirmAlert = remember { mutableStateOf(false) }
 
     // 送信先選択ダイアログ表示状態管理
-    val showDialog = remember { mutableStateOf(false) }
+    val showSelectRecipientDialog = remember { mutableStateOf(false) }
+
+    // サーバー切断アラート表示状態管理
+    val showDisconnectAlert = remember { mutableStateOf(false) }
+
+    // 接続状態がエラーになったらアラート表示
+    LaunchedEffect(uiState.connectionStatus) {
+        if (MyWebsocketClientStatus.ERROR.ordinal <= uiState.connectionStatus.ordinal) {
+            showDisconnectAlert.value = true
+        }
+    }
 
     // スクロール状態を管理
     val listState = rememberLazyListState()
@@ -94,7 +105,7 @@ fun ClientChatScreenContent(
                 title = { Text(text = "チャット (${uiState.connectionStatus.text})") }, // 接続状態を表示
                 navigationIcon = {  // 戻るボタン
                     IconButton(onClick = {
-                        showAlert.value = true  // チャット終了確認アラート表示
+                        showEndChatConfirmAlert.value = true  // チャット終了確認アラート表示
                     }) {
                         Icon(
                             imageVector = Icons.Default.ExitToApp,
@@ -145,7 +156,7 @@ fun ClientChatScreenContent(
                                 onRequest()
 
                                 // 送信先選択ダイアログ表示
-                                showDialog.value = true
+                                showSelectRecipientDialog.value = true
                             },
                             enabled = (messageText.isNotBlank() && messageText.length <= maxLength && uiState.connectionStatus == MyWebsocketClientStatus.CONNECTED),
                             colors = IconButtonDefaults.iconButtonColors(
@@ -221,32 +232,43 @@ fun ClientChatScreenContent(
     }
 
     // ----- 送信先選択ダイアログ表示 -----
-    if (showDialog.value) {
+    if (showSelectRecipientDialog.value) {
         SelectRecipientDialog(
             recipientsList = uiState.connectionUserList,
-            onDismissRequest = { showDialog.value = false },    // "戻る"
+            onDismissRequest = { showSelectRecipientDialog.value = false },    // "戻る"
             onSendBroadcast = {
                 // "送信"（ブロードキャスト）
                 onSendMessageBroadcast(messageText)
                 messageText = ""
-                showDialog.value = false    // ダイアログを閉じる
+                showSelectRecipientDialog.value = false    // ダイアログを閉じる
             },
             onSendSpecified = { sendList ->
                 // "送信"（個別に送信）
                 onSendMessageSpecified(sendList, messageText)
                 messageText = ""
-                showDialog.value = false    // ダイアログを閉じる
+                showSelectRecipientDialog.value = false    // ダイアログを閉じる
             }
         )
     }
 
     // ----- チャット終了確認アラート表示 -----
-    if (showAlert.value) {
+    if (showEndChatConfirmAlert.value) {
         EndChatConfirmAlert(
-            onDismissRequest = { showAlert.value = false }, // "戻る"
+            onDismissRequest = { showEndChatConfirmAlert.value = false }, // "戻る"
             onConfirm = {   // "OK"
-                showAlert.value = false
+                showEndChatConfirmAlert.value = false
                 onDisconnect()              // ViewModel に切断を通知
+                onDisconnectButtonClick()   // 起動時画面に戻る
+            }
+        )
+    }
+
+    // ----- サーバー切断アラート表示 -----
+    if (showDisconnectAlert.value) {
+        DisconnectAlert(
+            reason = uiState.connectionStatus,
+            onDismiss = {   // "OK"
+                showDisconnectAlert.value = false
                 onDisconnectButtonClick()   // 起動時画面に戻る
             }
         )

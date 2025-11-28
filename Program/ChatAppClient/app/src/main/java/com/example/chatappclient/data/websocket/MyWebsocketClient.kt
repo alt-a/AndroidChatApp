@@ -189,7 +189,9 @@ class MyWebsocketClient : ViewModel() {
             // ----- Close ハンドシェイク -----
             // Closeフレームを受信するとincomingループを抜けここに到達する
             Log.d("MyWebsocketClient", "Close WebSocket Session")
-            _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED
+            if (_connectionStatus.value != MyWebsocketClientStatus.DISCONNECTED) {
+                _connectionStatus.value = MyWebsocketClientStatus.DISCONNECTED_SERVER_CLOSE
+            }
             clearSession()
 
         } catch (e: Exception) {

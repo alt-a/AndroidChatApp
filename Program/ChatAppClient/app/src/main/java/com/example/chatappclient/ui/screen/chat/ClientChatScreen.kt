@@ -38,15 +38,6 @@ fun ClientChatScreen(
         connectionUserList = connectionUserList
     )
 
-    // --- 接続が切れたら自動で戻る ---
-    LaunchedEffect(connectionStatus) {
-        if (connectionStatus != MyWebsocketClientStatus.CONNECTED && connectionStatus != MyWebsocketClientStatus.CONNECTING) {
-            // 接続状態が "Connected" 以外 (Error, Disconnected など) になったら
-            // 起動時画面に戻る
-            onDisconnect()
-        }
-    }
-
     // ステートレスUIコンポーネント
     ClientChatScreenContent(
         uiState = uiState,
