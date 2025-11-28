@@ -1,83 +1,24 @@
 package com.example.chatappserver
 
-import android.net.ConnectivityManager
-import android.net.LinkProperties
-import android.net.Network
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import com.example.chatappserver.data.ipaddress.MonitorManagerFactory
 import com.example.chatappserver.navigation.ChatAppServerNavigation
-import java.net.Inet4Address
 
 class MainActivity : ComponentActivity() {
-
-    // IPアドレスを保持するための状態(State)変数
-    private val ipAddressState = mutableStateOf("Detecting IP...")
-
-    // ネットワーク監視用のコールバック
-    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-            super.onLinkPropertiesChanged(network, linkProperties)
-            Log.d("NetworkCallback", "LinkProperties changed: $linkProperties")
-            updateIpAddress(linkProperties)
-        }
-        override fun onLost(network: Network) {
-            super.onLost(network)
-            // ネットワークが失われた場合、再度検出を試みる
-            // (ただし、すぐ別のネットワークに切り替わるはずなので、ここではシンプルにIP未検出状態にする)
-            ipAddressState.value = "Network Lost. Re-detecting..."
-            Log.d("NetworkCallback", "Network lost")
-            // すぐにアクティブなネットワークを確認し直す
-            try {
-                val manager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-                val activeNetwork = manager.activeNetwork
-                if (activeNetwork != null) {
-                    val props = manager.getLinkProperties(activeNetwork)
-                    if (props != null) {
-                        updateIpAddress(props)
-                    }
-                } else {
-                    ipAddressState.value = "No Active Network"
-                }
-            } catch (e: Exception) {
-                Log.e("NetworkCallback", "Error re-checking IP on network lost", e)
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. IPアドレスの監視を開始
-        val manager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        try {
-            // (a) 現在のIPアドレスを取得
-            val currentNetwork = manager.activeNetwork
-            val linkProperties = manager.getLinkProperties(currentNetwork)
-            if (linkProperties != null) {
-                updateIpAddress(linkProperties)
-            } else {
-                ipAddressState.value = "No active network"
-                Log.d("NetworkCallback", "No active network found initially")
-            }
-            // (b) ネットワーク状態変化の監視を開始
-            manager.registerDefaultNetworkCallback(networkCallback)
-        } catch (e: SecurityException) {
-            Log.e("NetworkCallback", "Permission missing for initial check?", e)
-            ipAddressState.value = "Permission Error?"
-        } catch (e: Exception) {
-            Log.e("NetworkCallback", "Error during initial IP check", e)
-            ipAddressState.value = "Detection Error"
-        }
+        // IPアドレス監視用
+        val app = application as MyApplication
+        val factory = MonitorManagerFactory(app.ipAddressMonitor)
 
-
-        // 2. Jetpack ComposeでUIを構築
         setContent {
             // YourAppTheme { ... } のようなテーマで囲うのが一般的です
             Surface(
@@ -85,31 +26,12 @@ class MainActivity : ComponentActivity() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 // 起動時画面を表示
-                // ipAddressStateの値が変わると、この画面も自動で再描画される
-                ChatAppServerNavigation(ipAddressState.value)
+                ChatAppServerNavigation(factory)
             }
-        }
-    }
-
-    /** LinkPropertiesからIPアドレスを抽出し、Stateを更新する */
-    private fun updateIpAddress(linkProperties: LinkProperties) {
-        val newIp = linkProperties.linkAddresses
-            .firstOrNull { it.address is Inet4Address && it.address.isSiteLocalAddress }
-            ?.address?.hostAddress
-
-        if (newIp != null) {
-            ipAddressState.value = newIp
-            Log.d("NetworkCallback", "Found IP Address: $newIp")
-        } else {
-            ipAddressState.value = "Not Found (Wi-Fi or Hotspot only)"
-            Log.d("NetworkCallback", "IP not found in LinkProperties")
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        // ネットワーク監視を解除
-        val manager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        manager.unregisterNetworkCallback(networkCallback)
     }
 }

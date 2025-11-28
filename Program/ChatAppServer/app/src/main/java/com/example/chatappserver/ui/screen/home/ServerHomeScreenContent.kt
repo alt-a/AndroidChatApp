@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.chatappserver.ui.component.ConnectionUserCard
+import com.example.chatappserver.ui.component.IpAddressDialog
 import com.example.chatappserver.ui.component.StopServerConfirmAlert
 
 /**
@@ -43,6 +45,9 @@ fun ServerHomeScreenContent(
 
     // アラート表示状態管理
     val showAlert = remember { mutableStateOf(false) }
+
+    // IPアドレスダイアログ表示状態管理
+    val showDialog = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -65,7 +70,21 @@ fun ServerHomeScreenContent(
                         )
                     }
                 },
-                title = { Text(text = "接続中ユーザー一覧") }
+                title = { Text(text = "接続中ユーザー一覧") },
+                actions = {     // IPアドレスダイアログ表示ボタン
+                    IconButton(
+                        onClick = {
+                            // IPアドレスダイアログ表示
+                            showDialog.value = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             )
         }
     ) { paddingValues ->
@@ -95,6 +114,16 @@ fun ServerHomeScreenContent(
             onConfirm = {   // "OK"
                 showAlert.value = false
                 onStop()    // 起動時画面に戻る
+            }
+        )
+    }
+
+    // ----- IPアドレスダイアログ表示 -----
+    if (showDialog.value) {
+        IpAddressDialog(
+            ipAddress = uiState.ipAddress,
+            onDismiss = {
+                showDialog.value = false
             }
         )
     }
