@@ -9,5 +9,6 @@ enum class MyWebsocketClientStatus(val text: String) {
     CONNECTED("Connected"),         // 接続
     ERROR("Error"),                 // エラー発生
     DISCONNECTED_ERROR("Disconnected (Error)"), // エラー終了
-    SEND_ERROR("Send Error")        // 送信エラー発生
+    SEND_ERROR("Send Error"),       // 送信エラー発生
+    DISCONNECTED_SERVER_CLOSE("Disconnected (Close)")   // サーバー終了
 }
