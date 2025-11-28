@@ -227,6 +227,7 @@ class MyWebsocketClient : ViewModel() {
 
                 // 送信失敗
                 _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
+                clearSession()
             }
         }
     }
@@ -255,6 +256,7 @@ class MyWebsocketClient : ViewModel() {
 
                 // 送信失敗
                 _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
+                clearSession()
             }
         }
     }
@@ -294,6 +296,7 @@ class MyWebsocketClient : ViewModel() {
 
                 // 送信失敗
                 _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR//"Send Error: ${e.message}"
+                clearSession()
             }
         }
     }
@@ -339,6 +342,7 @@ class MyWebsocketClient : ViewModel() {
 
                 // 送信失敗
                 _connectionStatus.value = MyWebsocketClientStatus.SEND_ERROR
+                clearSession()
             }
         }
     }
